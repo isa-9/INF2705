@@ -2,11 +2,21 @@
 
 BasicShapeArrays::BasicShapeArrays(const GLfloat* data, GLsizeiptr byteSize)
 {
+    GLuint locPosition = 0;
+    GLint sizePosition = 3;
+
     // TODO Partie 1: Générer et bind le vao de la forme.
-    
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
     // TODO Partie 1: Générer et bind le vbo de la forme.
     // Allouer l'espace nécessaire dans le mode approprié
-    // et envoyer les données au gpu.      
+    // et envoyer les données au gpu.
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, byteSize, data, GL_STATIC_DRAW);
+    enableAttribute(locPosition, sizePosition, 0, 0);
+    glBindVertexArray(0);
 }
 
 BasicShapeArrays::~BasicShapeArrays()
@@ -14,11 +24,15 @@ BasicShapeArrays::~BasicShapeArrays()
     // TODO Partie 1: Supprimer la mémoire de l'objet.
     // Assurez-vous que les ressources ne soient pas utilisées
     // pendant la suppression.
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
 }
 
 void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride, GLsizeiptr offset)
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, &offset);
+    glEnableVertexAttribArray(index);
 }
 
 void BasicShapeArrays::draw(GLenum mode, GLsizei count)

@@ -77,7 +77,25 @@ int main(int argc, char* argv[])
     
     // TODO Partie 1: Instancier vos formes ici.
     // ...
-    
+    // Tableau des sommets du triangle
+    GLfloat coordsTriangle[] = {
+        -0.5, -0.5, 0.0,
+        0.5,  -0.5, 0.0,
+        0.0,  -0.5, 0.0,
+    };
+
+    // Tableau des sommets du carré
+    GLfloat coordsSquare[] = {
+        -0.5, -0.5, 0.0,
+        0.5,  -0.5, 0.0,
+        -0.5, 0.5,  0.0,
+        0.5,  0.5,  0.0,
+    };
+
+    BasicShapeArrays triangle1(coordsTriangle, sizeof(GLfloat));
+
+    BasicShapeArrays square1(coordsSquare, sizeof(GLfloat));
+
     // TODO Partie 2: Instancier le cube ici.
     // ...
     
