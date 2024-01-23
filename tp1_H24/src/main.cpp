@@ -97,6 +97,9 @@ int main(int argc, char* argv[])
         // TODO Partie 1: Rempliser adéquatement le tableau.
         // Vous pouvez expérimenter avec une couleur uniforme
         // de votre choix ou plusieurs différentes en chaque points.
+        0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0,
+        1.0, 0.0, 0.0
     };
     
     // TODO Partie 1: Instancier vos formes ici.
@@ -110,6 +113,8 @@ int main(int argc, char* argv[])
     // ...
     
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     // TODO Partie 2: Activer le depth test.
     
@@ -122,6 +127,7 @@ int main(int argc, char* argv[])
             glViewport(0, 0, w.getWidth(), w.getHeight());
         
         // TODO Partie 1: Nettoyer les tampons appropriées.
+        glClear(GL_COLOR_BUFFER_BIT);
         
         if (w.getKey(Window::Key::T))
         {

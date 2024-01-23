@@ -38,6 +38,10 @@ void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride,
 void BasicShapeArrays::draw(GLenum mode, GLsizei count)
 {
     // TODO Partie 1: Dessiner la forme.
+    glBindVertexArray(m_vao);
+    glDrawArrays(mode, 0, count);
+    glBindVertexArray(0);
+
 }
 
 
@@ -93,10 +97,22 @@ void BasicShapeMultipleArrays::draw(GLenum mode, GLsizei count)
 BasicShapeElements::BasicShapeElements(const GLfloat* data, GLsizeiptr byteSize, const GLubyte* indexes, GLsizeiptr indexesByteSize)
 {
     // TODO Partie 1: Générer et bind le vao de la forme.
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
     
     // TODO Partie 1: Générer et bind le vbo et ebo de la forme.
     // Allouer l'espace nécessaire dans le mode approprié
     // et envoyer les données au gpu.
+    
+    // VBO
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+    // EBO
+    glGenBuffers(1, &m_ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
 }
 
 BasicShapeElements::~BasicShapeElements()
