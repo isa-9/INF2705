@@ -40,18 +40,42 @@ int main(int argc, char* argv[])
     printGLInfo();
     
     // TODO Partie 1: Instancier les shader programs ici.
+    
+    ShaderProgram basicProg;
+    ShaderProgram colorProg;
+
     // ... basic;
     { // Les accolades vont permettre de détruire le code des shaders plus rapidement
         // Vous devez lire le code des shaders dans "shaders/"
         // avec la fonction "readFile".
+        std::string basicVertexShaderCode = readFile("basic.vs.glsl");
+        std::string basicFragmentShaderCode = readFile("basic.vs.glsl");
+
         
         // Vous pouvez par la suite instancier vos shaders, les attacher et les lier
         // au programme.
+        Shader basicVertexShader(GL_VERTEX_SHADER, basicVertexShaderCode.c_str());
+        basicProg.attachShader(basicVertexShader);
+
+        Shader basicFragmentShader(GL_FRAGMENT_SHADER, basicFragmentShaderCode.c_str());
+        basicProg.attachShader(basicFragmentShader);
+
+        basicProg.link();
     }
     
     // ... color;
     {
         // ...
+        std::string colorVertexShaderCode = readFile("basic.vs.glsl");
+        std::string colorFragmentShaderCode = readFile("basic.vs.glsl");
+
+        Shader colorVertexShader(GL_VERTEX_SHADER, colorVertexShaderCode.c_str());
+        colorProg.attachShader(colorVertexShader);
+
+        Shader colorFragmentShader(GL_FRAGMENT_SHADER, colorFragmentShaderCode.c_str());
+        colorProg.attachShader(colorFragmentShader);
+
+        colorProg.link();
     }
     
     // TODO Partie 2: Shader program de transformation.
@@ -77,24 +101,10 @@ int main(int argc, char* argv[])
     
     // TODO Partie 1: Instancier vos formes ici.
     // ...
-    // Tableau des sommets du triangle
-    GLfloat coordsTriangle[] = {
-        -0.5, -0.5, 0.0,
-        0.5,  -0.5, 0.0,
-        0.0,  -0.5, 0.0,
-    };
+   
+    BasicShapeArrays triangle1(triVertices, sizeof(GLfloat));
 
-    // Tableau des sommets du carré
-    GLfloat coordsSquare[] = {
-        -0.5, -0.5, 0.0,
-        0.5,  -0.5, 0.0,
-        -0.5, 0.5,  0.0,
-        0.5,  0.5,  0.0,
-    };
-
-    BasicShapeArrays triangle1(coordsTriangle, sizeof(GLfloat));
-
-    BasicShapeArrays square1(coordsSquare, sizeof(GLfloat));
+    BasicShapeArrays square1(squareVertices, sizeof(GLfloat));
 
     // TODO Partie 2: Instancier le cube ici.
     // ...
