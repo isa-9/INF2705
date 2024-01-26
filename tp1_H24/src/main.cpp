@@ -48,8 +48,8 @@ int main(int argc, char* argv[])
     { // Les accolades vont permettre de détruire le code des shaders plus rapidement
         // Vous devez lire le code des shaders dans "shaders/"
         // avec la fonction "readFile".
-        std::string basicVertexShaderCode = readFile("basic.vs.glsl");
-        std::string basicFragmentShaderCode = readFile("basic.vs.glsl");
+        std::string basicVertexShaderCode = readFile("shaders/basic.vs.glsl");
+        std::string basicFragmentShaderCode = readFile("shaders/basic.fs.glsl");
 
         
         // Vous pouvez par la suite instancier vos shaders, les attacher et les lier
@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
     // ... color;
     {
         // ...
-        std::string colorVertexShaderCode = readFile("basic.vs.glsl");
-        std::string colorFragmentShaderCode = readFile("basic.vs.glsl");
+        std::string colorVertexShaderCode = readFile("shaders/color.vs.glsl");
+        std::string colorFragmentShaderCode = readFile("shaders/color.fs.glsl");
 
         Shader colorVertexShader(GL_VERTEX_SHADER, colorVertexShaderCode.c_str());
         colorProg.attachShader(colorVertexShader);
@@ -87,8 +87,8 @@ int main(int argc, char* argv[])
     
     // Variables pour la mise à jour, ne pas modifier.
     float cx = 0, cy = 0;
-    float dx = 0.019;
-    float dy = 0.0128;
+    float dx = 0.019f;
+    float dy = 0.0128f;
     
     float angleDeg = 0.0f;
     
@@ -105,9 +105,17 @@ int main(int argc, char* argv[])
     // TODO Partie 1: Instancier vos formes ici.
     // ...
    
-    BasicShapeArrays triangle1(triVertices, sizeof(GLfloat));
+    BasicShapeArrays triangle1(triVertices, 3 * sizeof(GLfloat));
 
-    BasicShapeArrays square1(squareVertices, sizeof(GLfloat));
+    BasicShapeArrays square1(squareVertices, 3 * sizeof(GLfloat));
+
+    BasicShapeArrays coloredTriangle1(colorTriVertices, 6 * sizeof(GLfloat));
+
+    BasicShapeArrays coloredSquare(colorSquareVertices, 6 * sizeof(GLfloat));
+
+    BasicShapeMultipleArrays coloredTriangle2(triVertices, 3 * sizeof(GLfloat), onlyColorTriVertices, 3 * sizeof(GLfloat));
+
+    BasicShapeElements coloredSquare2(colorSquareVerticesReduced, 6 * sizeof(GLfloat), indexes, sizeof(indexes));
 
     // TODO Partie 2: Instancier le cube ici.
     // ...
@@ -136,20 +144,33 @@ int main(int argc, char* argv[])
         }
         
         // TODO Partie 1: Mise à jour des données du triangle
-        /*
+        
         changeRGB(&onlyColorTriVertices[0]);
         changeRGB(&onlyColorTriVertices[3]);
         changeRGB(&onlyColorTriVertices[6]);
-        
+
+        coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
+
+        GLfloat* posPtr = coloredTriangle2.mapPosData();
         changePos(posPtr, cx, cy, dx, dy);
-        //*/
+        coloredTriangle2.unmapPosData();
         
         
         // TODO Partie 1: Utiliser le bon shader programme selon la forme.
         // N'hésiter pas à utiliser le fallthrough du switch case.
         switch (selectShape)
         {
-            // ...
+        case 0:
+        case 1:
+            basicProg.use();
+            break;
+
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            colorProg.use();
+            break;            
         }
         
         // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
@@ -163,7 +184,24 @@ int main(int argc, char* argv[])
         // TODO Partie 1: Dessiner la forme sélectionnée.
         switch (selectShape)
         {
-            // ...
+        case 0:
+            triangle1.draw(GL_TRIANGLES, std::size(triVertices) / 3);
+            break;
+        case 1:
+            square1.draw(GL_TRIANGLES, std::size(squareVertices) / 3);
+            break;
+        case 2:
+            coloredTriangle1.draw(GL_TRIANGLES, std::size(colorTriVertices) / 6);
+            break;
+        case 3:
+            coloredSquare.draw(GL_TRIANGLES, std::size(colorSquareVertices) / 6);
+            break;
+        case 4:
+            coloredTriangle2.draw(GL_TRIANGLES, std::size(triVertices) / 3);
+            break;
+        case 5:
+            coloredSquare2.draw(GL_TRIANGLES, std::size(colorSquareVerticesReduced) / 6);
+            break;
         }
         
         w.swap();

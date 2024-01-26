@@ -128,7 +128,7 @@ GLfloat* BasicShapeMultipleArrays::mapPosData()
 {
     // TODO Partie 1: Activer le mapping des données de position
     glBindBuffer(GL_ARRAY_BUFFER, m_posVbo);
-    glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    return (GLfloat*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
 
 void BasicShapeMultipleArrays::unmapPosData()

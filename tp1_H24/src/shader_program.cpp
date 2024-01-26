@@ -76,6 +76,7 @@ void ShaderProgram::link()
 GLint ShaderProgram::getUniformLoc(const char* name)
 {
     // TODO Partie 2: Retourne la location d'un uniform dans le programme
+    return 0;
 }
     
 void ShaderProgram::checkError()
