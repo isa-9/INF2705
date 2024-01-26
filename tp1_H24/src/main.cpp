@@ -105,6 +105,7 @@ int main(int argc, char* argv[])
     // TODO Partie 1: Instancier vos formes ici.
     // ...
    
+    // Param byteSize doit être std::size(trivertices)
     BasicShapeArrays triangle1(triVertices, 3 * sizeof(GLfloat));
 
     BasicShapeArrays square1(squareVertices, 3 * sizeof(GLfloat));
