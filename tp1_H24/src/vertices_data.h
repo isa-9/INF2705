@@ -4,9 +4,9 @@
 const GLfloat triVertices[] = {  
     // TODO Partie 1: Définir les coordonnées d'un triangle
     // en considérant le type de l'entrée du vertex shader.
-    -0.5, -0.5, 0.0,
-    0.5,  -0.5, 0.0,
-    0.0,  0.5, 0.0,
+    -0.5f, -0.5f, 0.0f,
+    0.5f,  -0.5f, 0.0f,
+    0.0f,  0.5f, 0.0f,
 };
 
 const GLfloat squareVertices[] = {

@@ -106,24 +106,36 @@ int main(int argc, char* argv[])
     // ...
    
     // Param byteSize doit être std::size(trivertices)
-    BasicShapeArrays triangle1(triVertices, 3 * sizeof(GLfloat));
+    BasicShapeArrays triangle1(triVertices, sizeof
+    (triVertices));
+    // enable et reste appelé ici!!!
+    triangle1.enableAttribute(0, 3, 0, 0);
 
-    BasicShapeArrays square1(squareVertices, 3 * sizeof(GLfloat));
+    /*BasicShapeArrays square1(squareVertices, std::size(squareVertices));
+    square1.enableAttribute(0, 3, 0, 0);
 
-    BasicShapeArrays coloredTriangle1(colorTriVertices, 6 * sizeof(GLfloat));
+    BasicShapeArrays coloredTriangle1(colorTriVertices, std::size(colorTriVertices));
+    coloredTriangle1.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    coloredTriangle1.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
-    BasicShapeArrays coloredSquare(colorSquareVertices, 6 * sizeof(GLfloat));
+    BasicShapeArrays coloredSquare(colorSquareVertices, std::size(colorSquareVertices));
+    coloredSquare.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    coloredSquare.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
-    BasicShapeMultipleArrays coloredTriangle2(triVertices, 3 * sizeof(GLfloat), onlyColorTriVertices, 3 * sizeof(GLfloat));
+    BasicShapeMultipleArrays coloredTriangle2(triVertices, std::size(triVertices), onlyColorTriVertices, std::size(onlyColorTriVertices));
+    coloredTriangle2.enablePosAttribute(0, 3, 0, 0);
+    coloredTriangle2.enableColorAttribute(1, 3, 0, 0);
 
-    BasicShapeElements coloredSquare2(colorSquareVerticesReduced, 6 * sizeof(GLfloat), indexes, sizeof(indexes));
+    BasicShapeElements coloredSquare2(colorSquareVerticesReduced, std::size(colorSquareVerticesReduced), indexes, std::size(indexes));
+    coloredSquare2.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    coloredSquare2.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));*/
 
     // TODO Partie 2: Instancier le cube ici.
     // ...
     
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     
     // TODO Partie 2: Activer le depth test.
     
@@ -150,16 +162,17 @@ int main(int argc, char* argv[])
         changeRGB(&onlyColorTriVertices[3]);
         changeRGB(&onlyColorTriVertices[6]);
 
-        coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
+        /*coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
 
         GLfloat* posPtr = coloredTriangle2.mapPosData();
         changePos(posPtr, cx, cy, dx, dy);
-        coloredTriangle2.unmapPosData();
+        coloredTriangle2.unmapPosData();*/
         
         
         // TODO Partie 1: Utiliser le bon shader programme selon la forme.
         // N'hésiter pas à utiliser le fallthrough du switch case.
-        switch (selectShape)
+        basicProg.use();
+        /*switch (selectShape)
         {
         case 0:
         case 1:
@@ -172,7 +185,7 @@ int main(int argc, char* argv[])
         case 5:
             colorProg.use();
             break;            
-        }
+        }*/
         
         // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
         if (selectShape == 6)
@@ -183,7 +196,8 @@ int main(int argc, char* argv[])
         }
         
         // TODO Partie 1: Dessiner la forme sélectionnée.
-        switch (selectShape)
+        triangle1.draw(GL_TRIANGLES, 3);
+        /*switch (selectShape)
         {
         case 0:
             triangle1.draw(GL_TRIANGLES, std::size(triVertices) / 3);
@@ -203,7 +217,7 @@ int main(int argc, char* argv[])
         case 5:
             coloredSquare2.draw(GL_TRIANGLES, std::size(colorSquareVerticesReduced) / 6);
             break;
-        }
+        }*/
         
         w.swap();
         w.pollEvent();
