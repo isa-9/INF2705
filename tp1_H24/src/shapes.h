@@ -11,9 +11,11 @@ public:
     
     void enableAttribute(GLuint index, GLint size, GLsizei stride, GLsizeiptr offset);
     void draw(GLenum mode, GLsizei count);
+
+    GLuint m_vao;
     
 private:
-    GLuint m_vao;
+    //GLuint m_vao;
     GLuint m_vbo;
 };
 

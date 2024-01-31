@@ -32,9 +32,9 @@ void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride,
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
     //glBindVertexArray(m_vao);
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, &offset);
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
-    glBindVertexArray(0);
+    glBindVertexArray(0); 
 }
 
 void BasicShapeArrays::draw(GLenum mode, GLsizei count)
