@@ -19,9 +19,6 @@ void printGLInfo();
 #define GL_CHECK_ERROR checkGLError(__FILE__, __LINE__)
 void checkGLError(const char* file, int line);
 
-void changeRGB(GLfloat* color);
-void changePos(GLfloat* pos, float& cx, float& cy, float& dx, float& dy);
-
 std::string readFile(const char* path);
 
 int main(int argc, char* argv[])
@@ -36,13 +33,13 @@ int main(int argc, char* argv[])
         std::cout << "Could not initialize glew! GLEW_Error: " << glewGetErrorString(rev) << std::endl;
         return -2;
     }
-    
+        
     printGLInfo();
     
     // TODO Partie 1: Instancier les shader programs ici.
     
     ShaderProgram basicProg;
-    ShaderProgram colorProg;
+    GL_CHECK_ERROR;
 
     // ... basic;
     { // Les accolades vont permettre de détruire le code des shaders plus rapidement
@@ -61,55 +58,15 @@ int main(int argc, char* argv[])
         basicProg.attachShader(basicFragmentShader);
 
         basicProg.link();
-    }
-    
-    // ... color;
-    {
-        // ...
-        std::string colorVertexShaderCode = readFile("shaders/color.vs.glsl");
-        std::string colorFragmentShaderCode = readFile("shaders/color.fs.glsl");
-
-        Shader colorVertexShader(GL_VERTEX_SHADER, colorVertexShaderCode.c_str());
-        colorProg.attachShader(colorVertexShader);
-
-        Shader colorFragmentShader(GL_FRAGMENT_SHADER, colorFragmentShaderCode.c_str());
-        colorProg.attachShader(colorFragmentShader);
-
-        colorProg.link();
-    }
-    
-    // TODO Partie 2: Shader program de transformation.
-    // ... transform;
-    // ... location;
-    {
-        // ...
-    }
-    
-    // Variables pour la mise à jour, ne pas modifier.
-    float cx = 0, cy = 0;
-    float dx = 0.019f;
-    float dy = 0.0128f;
-    
-    float angleDeg = 0.0f;
-    
-    // Tableau non constant de la couleur
-    GLfloat onlyColorTriVertices[] = {
-        // TODO Partie 1: Rempliser adéquatement le tableau.
-        // Vous pouvez expérimenter avec une couleur uniforme
-        // de votre choix ou plusieurs différentes en chaque points.
-        0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0
-    };
+    } 
     
     // TODO Partie 1: Instancier vos formes ici.
-    // ...
    
     // Param byteSize doit être std::size(trivertices)
     BasicShapeArrays triangle1(triVertices, sizeof
     (triVertices));
     // enable et reste appelé ici!!!
-    triangle1.enableAttribute(0, 3, 0, 0);
+    triangle1.enableAttribute(0, 3, 3 * sizeof(GLfloat), 0);
 
     /*BasicShapeArrays square1(squareVertices, std::size(squareVertices));
     square1.enableAttribute(0, 3, 0, 0);
@@ -135,10 +92,9 @@ int main(int argc, char* argv[])
     
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT);
     
     // TODO Partie 2: Activer le depth test.
-    
+    glEnable(GL_DEPTH_TEST);
     
     int selectShape = 0;
     bool isRunning = true;
@@ -146,84 +102,26 @@ int main(int argc, char* argv[])
     {
         if (w.shouldResize())
             glViewport(0, 0, w.getWidth(), w.getHeight());
+        GL_CHECK_ERROR;
         
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT);
-        
-        if (w.getKey(Window::Key::T))
-        {
-            selectShape = ++selectShape < 7 ? selectShape : 0;
-            std::cout << "Selected shape: " << selectShape << std::endl;
-        }
-        
-        // TODO Partie 1: Mise à jour des données du triangle
-        
-        changeRGB(&onlyColorTriVertices[0]);
-        changeRGB(&onlyColorTriVertices[3]);
-        changeRGB(&onlyColorTriVertices[6]);
-
-        /*coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
-
-        GLfloat* posPtr = coloredTriangle2.mapPosData();
-        changePos(posPtr, cx, cy, dx, dy);
-        coloredTriangle2.unmapPosData();*/
-        
+        GL_CHECK_ERROR;
         
         // TODO Partie 1: Utiliser le bon shader programme selon la forme.
         // N'hésiter pas à utiliser le fallthrough du switch case.
         basicProg.use();
-        /*switch (selectShape)
-        {
-        case 0:
-        case 1:
-            basicProg.use();
-            break;
-
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-            colorProg.use();
-            break;            
-        }*/
-        
-        // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
-        if (selectShape == 6)
-        {
-            angleDeg += 0.5f;
-            // Utiliser glm pour les calculs de matrices.
-            // glm::mat4 matrix;
-        }
+        GL_CHECK_ERROR;
         
         // TODO Partie 1: Dessiner la forme sélectionnée.
         triangle1.draw(GL_TRIANGLES, 3);
-        /*switch (selectShape)
-        {
-        case 0:
-            triangle1.draw(GL_TRIANGLES, std::size(triVertices) / 3);
-            break;
-        case 1:
-            square1.draw(GL_TRIANGLES, std::size(squareVertices) / 3);
-            break;
-        case 2:
-            coloredTriangle1.draw(GL_TRIANGLES, std::size(colorTriVertices) / 6);
-            break;
-        case 3:
-            coloredSquare.draw(GL_TRIANGLES, std::size(colorSquareVertices) / 6);
-            break;
-        case 4:
-            coloredTriangle2.draw(GL_TRIANGLES, std::size(triVertices) / 3);
-            break;
-        case 5:
-            coloredSquare2.draw(GL_TRIANGLES, std::size(colorSquareVerticesReduced) / 6);
-            break;
-        }*/
         
         w.swap();
         w.pollEvent();
         isRunning = !w.shouldClose() && !w.getKey(Window::Key::ESC);
     }
-
+    GL_CHECK_ERROR;
+    
     return 0;
 }
 
@@ -274,50 +172,6 @@ void printGLInfo()
     std::cout << "    Version: "  << glGetString(GL_VERSION)  << std::endl;
     std::cout << "    Shading version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 }
-
-
-void changeRGB(GLfloat* color)
-{
-    unsigned char r = color[0]*255;
-    unsigned char g = color[1]*255;
-    unsigned char b = color[2]*255;
-    
-    if(r > 0 && b == 0)
-    {
-        r--;
-        g++;
-    }
-    if(g > 0 && r == 0)
-    {
-        g--;
-        b++;
-    }
-    if(b > 0 && g == 0)
-    {
-        r++;
-        b--;
-    }
-    color[0] = r/255.0f;
-    color[1] = g/255.0f;
-    color[2] = b/255.0f;
-}
-
-void changePos(GLfloat* pos, float& cx, float& cy, float& dx, float& dy)
-{
-    if ((cx < -1 && dx < 0) || (cx > 1 && dx > 0))
-        dx = -dx;
-    pos[0] += dx;
-    pos[3] += dx;
-    pos[6] += dx;
-    cx += dx;
-    if ((cy < -1 && dy < 0) || (cy > 1 && dy > 0))
-        dy = -dy;
-    pos[1] += dy;
-    pos[4] += dy;
-    pos[7] += dy;
-    cy += dy;
-}
-
 
 std::string readFile(const char* path)
 {

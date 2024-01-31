@@ -31,10 +31,10 @@ BasicShapeArrays::~BasicShapeArrays()
 void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride, GLsizeiptr offset)
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
-    //glBindVertexArray(m_vao);
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, &offset);
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
-    glBindVertexArray(0);
 }
 
 void BasicShapeArrays::draw(GLenum mode, GLsizei count)
@@ -42,7 +42,6 @@ void BasicShapeArrays::draw(GLenum mode, GLsizei count)
     // TODO Partie 1: Dessiner la forme.
     glBindVertexArray(m_vao);
     glDrawArrays(mode, 0, count);
-    glBindVertexArray(0);
 }
 
 
