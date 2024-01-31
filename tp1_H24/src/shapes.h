@@ -50,7 +50,7 @@ public:
     void enableAttribute(GLuint index, GLint size, GLsizei stride, GLsizeiptr offset);    
     void draw(GLenum mode, GLsizei count);
     
-private:
+//private:
     GLuint m_vao;
     GLuint m_vbo;
     GLuint m_ebo;

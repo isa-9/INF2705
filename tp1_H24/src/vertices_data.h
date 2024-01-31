@@ -15,14 +15,14 @@ const GLfloat squareVertices[] = {
 	// l'entrée du vertex shader.
 
     // 1er triangle
-    -0.5, -0.5, 0.0,
-    0.5,  -0.5, 0.0,
-    0.5,  0.5,  0.0,
+    -0.5f, -0.5f, 0.0f,
+    0.5f,  -0.5f, 0.0f,
+    0.5f,  0.5f,  0.0f,
 
     // 2e triangle
-    0.5,  0.5,  0.0,
-    -0.5, 0.5,  0.0,
-    -0.5, -0.5, 0.0
+    0.5f,  0.5f,  0.0f,
+    -0.5f, 0.5f,  0.0f,
+    -0.5f, -0.5f, 0.0f
 };
 
 const GLfloat colorTriVertices[] = {
@@ -51,12 +51,12 @@ const GLfloat colorSquareVertices[] = {
  
     // 1er triangle| Couleur
     -0.5, -0.5, 0.0, 0.0, 0.0, 1.0,
-    0.5,  -0.5, 0.0, 0.0, 1,0, 0.0,
+    0.5,  -0.5, 0.0, 0.0, 1.0, 0.0,
     0.5,  0.5,  0.0, 0.0, 0.0, 1.0,
 
     // 2e triangle | Couleur
     0.5,  0.5,  0.0, 0.0, 0.0, 1.0,
-    -0.5, 0.5,  0.0, 0.0, 1,0, 0.0,
+    -0.5, 0.5,  0.0, 0.0, 1.0, 0.0,
     -0.5, -0.5, 0.0, 0.0, 0.0, 1.0
 };
 
@@ -68,11 +68,11 @@ const GLfloat colorSquareVerticesReduced[] = {
     // des entrées du vertex shader. Il devrait y avoir
     // moins de données dans ce tableau.
 
-    //   Position  |    Couleur
-    -0.5, -0.5, 0.0, 0.0, 0.0, 1.0,
-    0.5,  -0.5, 0.0, 0.0, 1,0, 0.0,
-    0.5,  0.5,  0.0, 0.0, 0.0, 1.0,
-    -0.5, 0.5,  0.0, 0.0, 1,0, 0.0,
+    //   Position     |    Couleur
+    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 5.0f,
 };
 const GLubyte indexes[] = {
     // TODO Partie 1: Définir les indexes pour générer un

@@ -105,37 +105,34 @@ int main(int argc, char* argv[])
     // TODO Partie 1: Instancier vos formes ici.
     // ...
    
-    // Param byteSize doit être std::size(trivertices)
     BasicShapeArrays triangle1(triVertices, sizeof
     (triVertices));
-    // enable et reste appelé ici!!!
     triangle1.enableAttribute(0, 3, 0, 0);
 
-    /*BasicShapeArrays square1(squareVertices, std::size(squareVertices));
+    BasicShapeArrays square1(squareVertices, sizeof(squareVertices));
     square1.enableAttribute(0, 3, 0, 0);
 
-    BasicShapeArrays coloredTriangle1(colorTriVertices, std::size(colorTriVertices));
+    BasicShapeArrays coloredTriangle1(colorTriVertices, sizeof(colorTriVertices));
     coloredTriangle1.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
     coloredTriangle1.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
-    BasicShapeArrays coloredSquare(colorSquareVertices, std::size(colorSquareVertices));
+    BasicShapeArrays coloredSquare(colorSquareVertices, sizeof(colorSquareVertices));
     coloredSquare.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
     coloredSquare.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
-    BasicShapeMultipleArrays coloredTriangle2(triVertices, std::size(triVertices), onlyColorTriVertices, std::size(onlyColorTriVertices));
+    BasicShapeMultipleArrays coloredTriangle2(triVertices, sizeof(triVertices), onlyColorTriVertices, sizeof(onlyColorTriVertices));
     coloredTriangle2.enablePosAttribute(0, 3, 0, 0);
     coloredTriangle2.enableColorAttribute(1, 3, 0, 0);
 
-    BasicShapeElements coloredSquare2(colorSquareVerticesReduced, std::size(colorSquareVerticesReduced), indexes, std::size(indexes));
+    BasicShapeElements coloredSquare2(colorSquareVerticesReduced, sizeof(colorSquareVerticesReduced), indexes, sizeof(indexes));
     coloredSquare2.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    coloredSquare2.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));*/
+    coloredSquare2.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
     // TODO Partie 2: Instancier le cube ici.
     // ...
     
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT);
     
     // TODO Partie 2: Activer le depth test.
     
@@ -162,17 +159,16 @@ int main(int argc, char* argv[])
         changeRGB(&onlyColorTriVertices[3]);
         changeRGB(&onlyColorTriVertices[6]);
 
-        /*coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
+        coloredTriangle2.updateColorData(onlyColorTriVertices, sizeof(onlyColorTriVertices));
 
         GLfloat* posPtr = coloredTriangle2.mapPosData();
         changePos(posPtr, cx, cy, dx, dy);
-        coloredTriangle2.unmapPosData();*/
+        coloredTriangle2.unmapPosData();
         
         
         // TODO Partie 1: Utiliser le bon shader programme selon la forme.
         // N'hésiter pas à utiliser le fallthrough du switch case.
-        basicProg.use();
-        /*switch (selectShape)
+        switch (selectShape)
         {
         case 0:
         case 1:
@@ -185,7 +181,7 @@ int main(int argc, char* argv[])
         case 5:
             colorProg.use();
             break;            
-        }*/
+        }
         
         // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
         if (selectShape == 6)
@@ -196,28 +192,27 @@ int main(int argc, char* argv[])
         }
         
         // TODO Partie 1: Dessiner la forme sélectionnée.
-        triangle1.draw(GL_TRIANGLES, 3);
-        /*switch (selectShape)
+        switch (selectShape)
         {
         case 0:
-            triangle1.draw(GL_TRIANGLES, std::size(triVertices) / 3);
+            triangle1.draw(GL_TRIANGLES, 3);
             break;
         case 1:
-            square1.draw(GL_TRIANGLES, std::size(squareVertices) / 3);
+            square1.draw(GL_TRIANGLES, 6);
             break;
         case 2:
-            coloredTriangle1.draw(GL_TRIANGLES, std::size(colorTriVertices) / 6);
+            coloredTriangle1.draw(GL_TRIANGLES, 3);
             break;
         case 3:
-            coloredSquare.draw(GL_TRIANGLES, std::size(colorSquareVertices) / 6);
+            coloredSquare.draw(GL_TRIANGLES, 6);
             break;
         case 4:
-            coloredTriangle2.draw(GL_TRIANGLES, std::size(triVertices) / 3);
+            coloredTriangle2.draw(GL_TRIANGLES, 3);
             break;
         case 5:
-            coloredSquare2.draw(GL_TRIANGLES, std::size(colorSquareVerticesReduced) / 6);
+            coloredSquare2.draw(GL_TRIANGLES, 6);
             break;
-        }*/
+        }
         
         w.swap();
         w.pollEvent();
