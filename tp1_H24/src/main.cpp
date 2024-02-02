@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "window.h"
 #include "shader_program.h"
@@ -81,10 +82,23 @@ int main(int argc, char* argv[])
     // TODO Partie 2: Shader program de transformation.
     // ... transform;
     // ... location;
+    ShaderProgram transProg;
+
+    GLuint locMatrMVP;
     {
         // ...
+        std::string transVertexShaderCode = readFile("shaders/transform.vs.glsl");
+        std::string transFragmentShaderCode = readFile("shaders/transform.fs.glsl");
+
+        Shader transVertexShader(GL_VERTEX_SHADER, transVertexShaderCode.c_str());
+        transProg.attachShader(transVertexShader);
+
+        Shader transFragmentShader(GL_FRAGMENT_SHADER, transFragmentShaderCode.c_str());
+        transProg.attachShader(transFragmentShader);
+
+        transProg.link();
+        locMatrMVP = transProg.getUniformLoc("mvp");
     }
-    
     // Variables pour la mise à jour, ne pas modifier.
     float cx = 0, cy = 0;
     float dx = 0.019f;
@@ -129,12 +143,15 @@ int main(int argc, char* argv[])
     coloredSquare2.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
 
     // TODO Partie 2: Instancier le cube ici.
-    // ...
-    
+    BasicShapeElements cube(cubeVertices, sizeof(cubeVertices), cubeIndexes, sizeof(cubeIndexes));
+    cube.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    cube.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
+
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     glClearColor(1.0, 1.0, 1.0, 1.0);
     
     // TODO Partie 2: Activer le depth test.
+    glEnable(GL_DEPTH_TEST);
     
     
     int selectShape = 0;
@@ -145,7 +162,7 @@ int main(int argc, char* argv[])
             glViewport(0, 0, w.getWidth(), w.getHeight());
         
         // TODO Partie 1: Nettoyer les tampons appropriées.
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         if (w.getKey(Window::Key::T))
         {
@@ -180,7 +197,10 @@ int main(int argc, char* argv[])
         case 4:
         case 5:
             colorProg.use();
-            break;            
+            break;      
+        case 6:
+            transProg.use();
+            break;
         }
         
         // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
@@ -188,7 +208,21 @@ int main(int argc, char* argv[])
         {
             angleDeg += 0.5f;
             // Utiliser glm pour les calculs de matrices.
-            // glm::mat4 matrix;
+            // model
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(angleDeg), { 0.1, 1.0, 0.1 });
+
+            // vue
+            glm::mat4 view = glm::mat4(1.0f);
+            view = glm::translate(view, glm::vec3(0, -0.5, -2));
+
+            // perspective
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(glm::radians(70.0f), ((GLfloat)w.getWidth())/w.getHeight(), 0.1f, 10.0f);
+
+            glm::mat4 matrix = projection * view * model;
+
+            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
         }
         
         // TODO Partie 1: Dessiner la forme sélectionnée.
@@ -211,6 +245,9 @@ int main(int argc, char* argv[])
             break;
         case 5:
             coloredSquare2.draw(GL_TRIANGLES, 6);
+            break;
+        case 6:
+            cube.draw(GL_TRIANGLES, 36);
             break;
         }
         

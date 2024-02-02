@@ -30,6 +30,7 @@ void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride,
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
     glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
     glBindVertexArray(0);
@@ -85,6 +86,7 @@ void BasicShapeMultipleArrays::enablePosAttribute(GLuint index, GLint size, GLsi
 {
     // TODO Partie 1: Activer l'attribut de position et l'attacher correctement au state du vao.
     glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_posVbo);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
 }
@@ -93,6 +95,7 @@ void BasicShapeMultipleArrays::enableColorAttribute(GLuint index, GLint size, GL
 {
     // TODO Partie 1: Activer l'attribut de couleur et l'attacher correctement au state du vao.
     glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_colorVbo);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
     glBindVertexArray(0);
@@ -167,6 +170,7 @@ void BasicShapeElements::enableAttribute(GLuint index, GLint size, GLsizei strid
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
     glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
 }
