@@ -40,21 +40,13 @@ int main(int argc, char* argv[])
     
     printGLInfo();
     
-    // TODO Partie 1: Instancier les shader programs ici.
-    
     ShaderProgram basicProg;
-    ShaderProgram colorProg;
 
-    // ... basic;
-    { // Les accolades vont permettre de détruire le code des shaders plus rapidement
-        // Vous devez lire le code des shaders dans "shaders/"
-        // avec la fonction "readFile".
+    {
         std::string basicVertexShaderCode = readFile("shaders/basic.vs.glsl");
         std::string basicFragmentShaderCode = readFile("shaders/basic.fs.glsl");
 
         
-        // Vous pouvez par la suite instancier vos shaders, les attacher et les lier
-        // au programme.
         Shader basicVertexShader(GL_VERTEX_SHADER, basicVertexShaderCode.c_str());
         basicProg.attachShader(basicVertexShader);
 
@@ -63,10 +55,10 @@ int main(int argc, char* argv[])
 
         basicProg.link();
     }
-    
-    // ... color;
+
+    ShaderProgram colorProg;
+
     {
-        // ...
         std::string colorVertexShaderCode = readFile("shaders/color.vs.glsl");
         std::string colorFragmentShaderCode = readFile("shaders/color.fs.glsl");
 
@@ -79,14 +71,10 @@ int main(int argc, char* argv[])
         colorProg.link();
     }
     
-    // TODO Partie 2: Shader program de transformation.
-    // ... transform;
-    // ... location;
     ShaderProgram transProg;
-
     GLuint locMatrMVP;
+
     {
-        // ...
         std::string transVertexShaderCode = readFile("shaders/transform.vs.glsl");
         std::string transFragmentShaderCode = readFile("shaders/transform.fs.glsl");
 
@@ -108,16 +96,10 @@ int main(int argc, char* argv[])
     
     // Tableau non constant de la couleur
     GLfloat onlyColorTriVertices[] = {
-        // TODO Partie 1: Rempliser adéquatement le tableau.
-        // Vous pouvez expérimenter avec une couleur uniforme
-        // de votre choix ou plusieurs différentes en chaque points.
         0.0, 0.0, 1.0,
         0.0, 1.0, 0.0,
         1.0, 0.0, 0.0
     };
-    
-    // TODO Partie 1: Instancier vos formes ici.
-    // ...
    
     BasicShapeArrays triangle1(triVertices, sizeof
     (triVertices));
@@ -127,30 +109,27 @@ int main(int argc, char* argv[])
     square1.enableAttribute(0, 3, 0, 0);
 
     BasicShapeArrays coloredTriangle1(colorTriVertices, sizeof(colorTriVertices));
-    coloredTriangle1.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    coloredTriangle1.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
+    coloredTriangle1.enableAttribute(0, 3, 6, 0);
+    coloredTriangle1.enableAttribute(1, 3, 6, 3);
 
     BasicShapeArrays coloredSquare(colorSquareVertices, sizeof(colorSquareVertices));
-    coloredSquare.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    coloredSquare.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
+    coloredSquare.enableAttribute(0, 3, 6, 0);
+    coloredSquare.enableAttribute(1, 3, 6, 3);
 
     BasicShapeMultipleArrays coloredTriangle2(triVertices, sizeof(triVertices), onlyColorTriVertices, sizeof(onlyColorTriVertices));
     coloredTriangle2.enablePosAttribute(0, 3, 0, 0);
     coloredTriangle2.enableColorAttribute(1, 3, 0, 0);
 
     BasicShapeElements coloredSquare2(colorSquareVerticesReduced, sizeof(colorSquareVerticesReduced), indexes, sizeof(indexes));
-    coloredSquare2.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    coloredSquare2.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
+    coloredSquare2.enableAttribute(0, 3, 6, 0);
+    coloredSquare2.enableAttribute(1, 3, 6, 3);
 
-    // TODO Partie 2: Instancier le cube ici.
     BasicShapeElements cube(cubeVertices, sizeof(cubeVertices), cubeIndexes, sizeof(cubeIndexes));
-    cube.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    cube.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3 * sizeof(GLfloat));
+    cube.enableAttribute(0, 3, 6, 0);
+    cube.enableAttribute(1, 3, 6, 3);
 
-    // TODO Partie 1: Donner une couleur de remplissage aux fonds.
+
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    
-    // TODO Partie 2: Activer le depth test.
     glEnable(GL_DEPTH_TEST);
     
     
@@ -161,7 +140,6 @@ int main(int argc, char* argv[])
         if (w.shouldResize())
             glViewport(0, 0, w.getWidth(), w.getHeight());
         
-        // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         if (w.getKey(Window::Key::T))
@@ -169,8 +147,6 @@ int main(int argc, char* argv[])
             selectShape = ++selectShape < 7 ? selectShape : 0;
             std::cout << "Selected shape: " << selectShape << std::endl;
         }
-        
-        // TODO Partie 1: Mise à jour des données du triangle
         
         changeRGB(&onlyColorTriVertices[0]);
         changeRGB(&onlyColorTriVertices[3]);
@@ -182,9 +158,6 @@ int main(int argc, char* argv[])
         changePos(posPtr, cx, cy, dx, dy);
         coloredTriangle2.unmapPosData();
         
-        
-        // TODO Partie 1: Utiliser le bon shader programme selon la forme.
-        // N'hésiter pas à utiliser le fallthrough du switch case.
         switch (selectShape)
         {
         case 0:
@@ -203,29 +176,17 @@ int main(int argc, char* argv[])
             break;
         }
         
-        // TODO Partie 2: Calcul des matrices et envoyer une matrice résultante mvp au shader.
         if (selectShape == 6)
         {
             angleDeg += 0.5f;
-            // Utiliser glm pour les calculs de matrices.
-            // model
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(angleDeg), { 0.1, 1.0, 0.1 });
+            glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(angleDeg), glm::vec3(0.1, 1, 0.1));
+            glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, -0.5, -2));
+            glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 10.0f);
 
-            // vue
-            glm::mat4 view = glm::mat4(1.0f);
-            view = glm::translate(view, glm::vec3(0, -0.5, -2));
-
-            // perspective
-            glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(70.0f), ((GLfloat)w.getWidth())/w.getHeight(), 0.1f, 10.0f);
-
-            glm::mat4 matrix = projection * view * model;
+            glm::mat4 matrix = proj * view * model;
 
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
         }
-        
-        // TODO Partie 1: Dessiner la forme sélectionnée.
         switch (selectShape)
         {
         case 0:
