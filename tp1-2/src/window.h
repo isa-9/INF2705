@@ -12,6 +12,10 @@ public:
     {
         ESC = SDLK_ESCAPE,
         T = SDLK_t,
+        W = SDLK_w,
+        A = SDLK_a,
+        S = SDLK_s,
+        D = SDLK_d,
     };
     
 public:
@@ -23,7 +27,11 @@ public:
     void swap();    
     void pollEvent();
     
-    bool getKey(Key k);
+    bool getKeyHold(Key k);
+    bool getKeyPress(Key k);
+
+    void getMouseMotion(int& x, int& y);
+    int getMouseScrollDirection();
     
     unsigned int getTick();
     
@@ -42,6 +50,7 @@ private:
     int m_width, m_height;
     
     std::unordered_map<Key, bool> m_keys;
+    int m_mouseX, m_mouseY, m_scroll;
 };
 
 #endif // WINDOW_H
