@@ -3,7 +3,7 @@
 #include <math.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(const glm::vec3& position, const glm::vec2& orientation)
+Camera::Camera(const glm::vec3& position, const glm::vec2& orientation) : m_position(position), m_orientation(orientation)
 {
 	// TODO: Initialisation des attributs de la classe
 }
