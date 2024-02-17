@@ -1,9 +1,10 @@
 #include "model.h"
+#include "vertices_data.h"
 
 #include "obj_loader.h"
 #include <iostream>
 
-Model::Model(const char* path)
+Model::Model(const char* path) : m_shape()
 {
 	// TODO: Initalisation du modèle et des attibuts de la classe
 	std::vector<GLfloat> vertexData;
@@ -11,9 +12,12 @@ Model::Model(const char* path)
 
 	loadObj(path, vertexData, indices);
 
-	m_shape.setData(vertexData.data(), sizeof(vertexData.data()), indices.data(), sizeof(indices.data()));
+	std::cout << vertexData.size() * 4 << std::endl;
 
-	m_count = sizeof(indices.data());
+	m_shape.setData(vertexData.data(), vertexData.size() * sizeof(GLfloat), indices.data(), indices.size() * sizeof(GLuint));
+	m_shape.enableAttribute(0, 3, 3, 0);
+
+	m_count = indices.size();
 }
 
 void Model::loadObj(const char* path, std::vector<GLfloat>& vertexData, std::vector<GLuint>& indices)

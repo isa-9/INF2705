@@ -14,6 +14,8 @@
 #include "vertices_data.h"
 #include "shapes.h"
 #include "utils.h"
+#include "camera.h"
+#include "model.h"
 
 
 void printGLInfo();
@@ -36,7 +38,7 @@ int main(int argc, char* argv[])
         return -2;
     }
     
-    printGLInfo();
+    /*printGLInfo();
     
     ShaderProgram transProg;
     GLuint locMatrMVP;
@@ -53,6 +55,24 @@ int main(int argc, char* argv[])
 
         transProg.link();
         locMatrMVP = transProg.getUniformLoc("mvp");
+    }*/
+
+    ShaderProgram modelProg;
+    GLuint locMatrMVP, locColor;
+
+    {
+        std::string modelVSCode = readFile("shaders/model.vs.glsl");
+        std::string modelFSCode = readFile("shaders/model.fs.glsl");
+
+        Shader transVertexShader(GL_VERTEX_SHADER, modelVSCode.c_str());
+        modelProg.attachShader(transVertexShader);
+
+        Shader transFragmentShader(GL_FRAGMENT_SHADER, modelFSCode.c_str());
+        modelProg.attachShader(transFragmentShader);
+
+        modelProg.link();
+        locMatrMVP = modelProg.getUniformLoc("mvp");
+        locColor = modelProg.getUniformLoc("color");
     }
     // Variables pour la mise à jour, ne pas modifier.
     float angleDeg = 0.0f;
@@ -62,10 +82,8 @@ int main(int argc, char* argv[])
     cube.enableAttribute(0, 3, 6, 0);
     cube.enableAttribute(1, 3, 6, 3);
 
-    BasicShapeElements sol;
-    sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
-    sol.enableAttribute(0, 3, 6, 0);
-    sol.enableAttribute(1, 3, 6, 3);
+    Model suzanne("models/suzanne.obj");
+    GL_CHECK_ERROR;
 
     BasicShapeElements sol;
     sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
@@ -131,8 +149,7 @@ int main(int argc, char* argv[])
         rockTransform[i] = rotate * translate * scale;
     }
 
-    glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
-
+    //glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
     
 
     glm::vec3 playerPosition = glm::vec3(0);
@@ -143,9 +160,11 @@ int main(int argc, char* argv[])
     bool isFirstPersonCam = false;
 
 
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glEnable(GL_DEPTH_TEST | GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
+    
     
     
     int selectShape = 0;
@@ -157,7 +176,7 @@ int main(int argc, char* argv[])
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        transProg.use();
+        modelProg.use();
         
         angleDeg += 0.5f;
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(angleDeg), glm::vec3(0.1, 1, 0.1));
@@ -167,8 +186,12 @@ int main(int argc, char* argv[])
         glm::mat4 matrix = proj * view * model;
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
+        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
 
-        cube.draw(GL_TRIANGLES, 36);
+        //cube.draw(GL_TRIANGLES, 36);
+        suzanne.draw();
+        GL_CHECK_ERROR;
+        //sol.draw(GL_TRIANGLES, 6);
         
         w.swap();
         w.pollEvent();
