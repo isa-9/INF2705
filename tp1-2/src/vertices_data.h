@@ -98,4 +98,28 @@ const GLfloat skyboxVertices[] = {
 	 1.0f, -1.0f,  1.0f
 };
 
+const GLfloat solVertex[] = {
+       -30.0f, -1.0f, -30.0f, 0.0f, 0.0f, 0.0f,
+        30.0f, -1.0f, -30.0f, 0.0f, 0.0f, 0.0f,
+       -30.0f, -1.0f,  30.0f, 0.0f, 0.0f, 0.0f,
+        30.0f, -1.0f,  30.0f, 0.0f, 0.0f, 0.0f,
+};
+
+const GLuint  solIndices[] = {
+    0, 1, 2,
+    1, 3, 2
+};
+
+const GLfloat ruisseauVertex[] = {
+        -30.0f, -1.0f,  30.0f, 0.0f, 0.0f, 0.0f,
+         30.0f, -1.0f,  30.0f, 0.0f, 0.0f, 0.0f,
+        -30.0f, -1.0f,  50.0f, 0.0f, 0.0f, 0.0f,
+         30.0f, -1.0f,  50.0f, 0.0f, 0.0f, 0.0f,
+};
+
+const GLuint ruisseauIndices[] = {
+    0, 1, 2,
+    1, 3, 2
+};
+
 #endif // VERTICES_DATA_H

@@ -13,6 +13,7 @@
 #include "shader_program.h"
 #include "vertices_data.h"
 #include "shapes.h"
+#include "utils.h"
 
 
 void printGLInfo();
@@ -61,9 +62,90 @@ int main(int argc, char* argv[])
     cube.enableAttribute(0, 3, 6, 0);
     cube.enableAttribute(1, 3, 6, 3);
 
+    BasicShapeElements sol;
+    sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
+    sol.enableAttribute(0, 3, 6, 0);
+    sol.enableAttribute(1, 3, 6, 3);
+
+    BasicShapeElements sol;
+    sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
+    sol.enableAttribute(0, 3, 6, 0);
+    sol.enableAttribute(1, 3, 6, 3);
+
+    BasicShapeElements ruisseau;
+    ruisseau.setData(ruisseauVertex, sizeof(ruisseauVertex), ruisseauIndices, sizeof(ruisseauIndices));
+    ruisseau.enableAttribute(0, 3, 6, 0);
+    ruisseau.enableAttribute(1, 3, 6, 3);
+
+
+    const int N_ROWS = 7;
+    const int N_GROUPS = N_ROWS * N_ROWS;
+
+    glm::mat4 groupsTransform[N_GROUPS];
+
+    glm::mat4 treeTransform[N_GROUPS];
+    glm::mat4 rockTransform[N_GROUPS];
+    glm::mat4 shroomTransform[N_GROUPS];
+
+    float x, z, scaleFactor = 0;
+    glm::mat4 translate, rotate, scale;
+
+    for (int i = 0; i < N_GROUPS; ++i) {
+        // Transformations du groupe
+        getGroupRandomPos(i, N_ROWS, x, z);
+        translate = glm::translate(glm::mat4(1.0f), { x, -1, z });
+        rotate = glm::rotate(glm::mat4(1.0f), glm::radians(float(rand01() * 360)), { 0, 1, 0 });
+
+        scaleFactor = 0.7f + rand01() * (1.3f - 0.7f);
+        scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
+
+        groupsTransform[i] = translate * rotate * scale;
+
+
+        // Transformations de l'arbre
+        scaleFactor = 0.7f + rand01() * (1.3f - 0.7f);
+        scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
+
+        treeTransform[i] = scale;
+        
+
+        // Transformations du champignon
+        translate = glm::translate(glm::mat4(1.0f), { 0.3f, 0.0f, 0.3f });
+
+        shroomTransform[i] = scale * translate;
+        
+        scale = glm::inverse(scale);
+
+        shroomTransform[i] = shroomTransform[i] * scale;
+
+        scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
+
+        shroomTransform[i] = shroomTransform[i] * scale; // scale(arbre) * translate * (scale(arbre) ^(-1)) * scale(0.05)
+
+
+        // Transformations de la roche
+        translate = glm::translate(glm::mat4(1.0f), { rand01() + 1.0f, 0.2f, 0.0f});
+        scaleFactor = 0.3f;
+        scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
+
+        rockTransform[i] = rotate * translate * scale;
+    }
+
+    glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
+
+    
+
+    glm::vec3 playerPosition = glm::vec3(0);
+    glm::vec2 playerOrientation = glm::vec2(0);
+
+    // ...
+
+    bool isFirstPersonCam = false;
+
 
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST | GL_CULL_FACE);
+    glCullFace(GL_BACK);
     
     
     int selectShape = 0;
