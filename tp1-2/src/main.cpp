@@ -9,6 +9,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <algorithm>
+
 #include "window.h"
 #include "shader_program.h"
 #include "vertices_data.h"
@@ -24,6 +26,9 @@ void printGLInfo();
 void checkGLError(const char* file, int line);
 
 std::string readFile(const char* path);
+
+void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation);
+glm::mat4 modelMatrixSuzanne();
 
 int main(int argc, char* argv[])
 {
@@ -83,7 +88,6 @@ int main(int argc, char* argv[])
     cube.enableAttribute(1, 3, 6, 3);
 
     Model suzanne("models/suzanne.obj");
-    GL_CHECK_ERROR;
 
     BasicShapeElements sol;
     sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
@@ -155,15 +159,18 @@ int main(int argc, char* argv[])
     glm::vec3 playerPosition = glm::vec3(0);
     glm::vec2 playerOrientation = glm::vec2(0);
 
-    // ...
+    Camera camera(playerPosition, playerOrientation);
 
     bool isFirstPersonCam = false;
+
 
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
+
+    int xMouse=0, yMouse=0;
     
     
     
@@ -177,16 +184,21 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         modelProg.use();
+
+        w.getMouseMotion(xMouse, yMouse);
+        handleMouseMotion(xMouse, yMouse, playerOrientation);
         
         angleDeg += 0.5f;
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(angleDeg), glm::vec3(0.1, 1, 0.1));
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, -0.5, -2));
-        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 10.0f);
+        glm::mat4 model = modelMatrixSuzanne();//glm::rotate(glm::mat4(1.0f), glm::radians(angleDeg), glm::vec3(0.1, 1, 0.1));
+        glm::mat4 view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
+        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
 
         glm::mat4 matrix = proj * view * model;
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
         glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
+
+
 
         //cube.draw(GL_TRIANGLES, 36);
         suzanne.draw();
@@ -255,4 +267,18 @@ std::string readFile(const char* path)
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
+}
+
+void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation) {
+    playerOrientation.x += yMouse * 0.01f;
+    playerOrientation.y += xMouse * 0.01f;
+    std::cout << "x: " << playerOrientation.x << ", y: " << playerOrientation.y << std::endl;
+}
+
+glm::mat4 modelMatrixSuzanne() {
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), { 0.0, -1.0, 0.0 });
+    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), { 0, 1, 0 });
+    glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+
+    return translate * rotate * scale;
 }
