@@ -89,6 +89,12 @@ int main(int argc, char* argv[])
 
     Model suzanne("models/suzanne.obj");
 
+    Model tree("models/tree.obj");
+
+    Model shroom("models/mushroom.obj");
+
+    Model rock("models/rock.obj");
+
     BasicShapeElements sol;
     sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
     sol.enableAttribute(0, 3, 6, 0);
@@ -172,7 +178,7 @@ int main(int argc, char* argv[])
 
     int xMouse=0, yMouse=0;
     
-    
+    glm::mat4 model, view, proj, matrix;
     
     int selectShape = 0;
     bool isRunning = true;
@@ -188,22 +194,57 @@ int main(int argc, char* argv[])
         w.getMouseMotion(xMouse, yMouse);
         handleMouseMotion(xMouse, yMouse, playerOrientation);
         
-        angleDeg += 0.5f;
-        glm::mat4 model = modelMatrixSuzanne();//glm::rotate(glm::mat4(1.0f), glm::radians(angleDeg), glm::vec3(0.1, 1, 0.1));
-        glm::mat4 view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
-        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
+        model = glm::mat4(1.0f);
+        view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
+        proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
 
-        glm::mat4 matrix = proj * view * model;
+        matrix = proj * view * model;
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
         glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
 
 
 
-        //cube.draw(GL_TRIANGLES, 36);
-        suzanne.draw();
-        GL_CHECK_ERROR;
-        //sol.draw(GL_TRIANGLES, 6);
+        // Draw Suzanne
+        if (!isFirstPersonCam) {
+            model = modelMatrixSuzanne();
+            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
+            suzanne.draw();
+        }
+
+        // Draw sol
+        model = glm::mat4(1.0f);
+        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, 0.7f)));
+        ruisseau.draw(GL_TRIANGLES, 6);
+
+        // Draw sol
+        model = glm::mat4(1.0f);
+        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3( 0.0f, 1.0f, 0.0f )));
+        sol.draw(GL_TRIANGLES, 6);
+
+        // Draw model 
+        for (int i = 0; i < N_GROUPS; ++i) {
+            groupsTransform[i];
+            treeTransform[i];
+            shroomTransform[i];
+            rockTransform[i];
+
+            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
+            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.0f, 0.7f, 0.0f)));
+            tree.draw();
+
+            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * rockTransform[i]));
+            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+            rock.draw();
+
+            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * shroomTransform[i]));
+            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f, 0.0f, 0.0f)));
+            shroom.draw();        
+        }
+
         
         w.swap();
         w.pollEvent();
@@ -272,7 +313,10 @@ std::string readFile(const char* path)
 void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation) {
     playerOrientation.x += yMouse * 0.01f;
     playerOrientation.y += xMouse * 0.01f;
-    std::cout << "x: " << playerOrientation.x << ", y: " << playerOrientation.y << std::endl;
+}
+
+void drawSuzanne(Model suzanne, glm::mat4 pv) {
+    
 }
 
 glm::mat4 modelMatrixSuzanne() {
