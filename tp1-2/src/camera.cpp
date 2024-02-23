@@ -18,7 +18,7 @@ glm::mat4 Camera::getFirstPersonViewMatrix()
 	glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), glm::radians(m_orientation.x), { 1, 0, 0 });
 	glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), glm::radians(m_orientation.y), { 0, 1, 0 });
 
-	return glm::inverse(rotationY * rotationX * position);
+	return glm::inverse(position * rotationY * rotationX);
 }
 
 glm::mat4 Camera::getThirdPersonViewMatrix()

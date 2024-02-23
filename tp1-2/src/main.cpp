@@ -28,7 +28,9 @@ void checkGLError(const char* file, int line);
 std::string readFile(const char* path);
 
 void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation);
-glm::mat4 modelMatrixSuzanne();
+glm::mat4 modelMatrixSuzanne(const glm::vec3& pos);
+
+void handleKeyboardPress(Window& w, glm::vec3& playerPosition);
 
 int main(int argc, char* argv[])
 {
@@ -183,7 +185,7 @@ int main(int argc, char* argv[])
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
 
-    int xMouse=0, yMouse=0;
+    int xMouse = 0, yMouse = 0;
     
     glm::mat4 model, view, proj, matrix;
     
@@ -200,6 +202,11 @@ int main(int argc, char* argv[])
 
         w.getMouseMotion(xMouse, yMouse);
         handleMouseMotion(xMouse, yMouse, playerOrientation);
+
+        handleKeyboardPress(w, playerPosition);
+
+        if (w.getMouseScrollDirection() != 0)
+            isFirstPersonCam = w.getMouseScrollDirection() > 0;
         
         model = glm::mat4(1.0f);
         view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
@@ -211,10 +218,9 @@ int main(int argc, char* argv[])
         glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
 
 
-
         // Draw Suzanne
         if (!isFirstPersonCam) {
-            model = modelMatrixSuzanne();
+            model = modelMatrixSuzanne(playerPosition);
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
             glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
             suzanne.draw();
@@ -332,8 +338,19 @@ void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOr
     playerOrientation.y += xMouse * 0.01f;
 }
 
-glm::mat4 modelMatrixSuzanne() {
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), { 0.0, -1.0, 0.0 });
+void handleKeyboardPress(Window& w, glm::vec3& playerPosition) {
+    if (w.getKeyHold(Window::Key::S))
+        playerPosition.z += 0.1f;
+    if (w.getKeyHold(Window::Key::W))
+        playerPosition.z -= 0.1f;
+    if (w.getKeyHold(Window::Key::D))
+        playerPosition.x += 0.1f;
+    if (w.getKeyHold(Window::Key::A))
+        playerPosition.x -= 0.1f;
+}
+
+glm::mat4 modelMatrixSuzanne(const glm::vec3& pos) {
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), { pos.x, -1.0, pos.z });
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), { 0, 1, 0 });
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 
