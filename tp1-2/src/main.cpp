@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "camera.h"
 #include "model.h"
+#include "textures.h"
 
 
 void printGLInfo();
@@ -44,28 +45,9 @@ int main(int argc, char* argv[])
         std::cout << "Could not initialize glew! GLEW_Error: " << glewGetErrorString(rev) << std::endl;
         return -2;
     }
-    
-    /*printGLInfo();
-    
-    ShaderProgram transProg;
-    GLuint locMatrMVP;
-
-    {
-        std::string transVertexShaderCode = readFile("shaders/tp1/transform.vs.glsl");
-        std::string transFragmentShaderCode = readFile("shaders/tp1/transform.fs.glsl");
-
-        Shader transVertexShader(GL_VERTEX_SHADER, transVertexShaderCode.c_str());
-        transProg.attachShader(transVertexShader);
-
-        Shader transFragmentShader(GL_FRAGMENT_SHADER, transFragmentShaderCode.c_str());
-        transProg.attachShader(transFragmentShader);
-
-        transProg.link();
-        locMatrMVP = transProg.getUniformLoc("mvp");
-    }*/
 
     ShaderProgram modelProg;
-    GLuint locMatrMVP, locColor;
+    GLuint locMatrMVP, locTex;
 
     {
         std::string modelVSCode = readFile("shaders/model.vs.glsl");
@@ -79,15 +61,24 @@ int main(int argc, char* argv[])
 
         modelProg.link();
         locMatrMVP = modelProg.getUniformLoc("mvp");
-        locColor = modelProg.getUniformLoc("color");
+        locTex = modelProg.getUniformLoc("tex0");
     }
-    // Variables pour la mise à jour, ne pas modifier.
-    float angleDeg = 0.0f;
 
-    BasicShapeElements cube;
-    cube.setData(cubeVertices, sizeof(cubeVertices), cubeIndexes, sizeof(cubeIndexes));
-    cube.enableAttribute(0, 3, 6, 0);
-    cube.enableAttribute(1, 3, 6, 3);
+    Texture2D suzanneTex("models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
+    Texture2D treeTex("models/treeTexture.png", GL_CLAMP_TO_EDGE);
+    Texture2D shroomTex("models/mushroomTexture.png", GL_CLAMP_TO_EDGE);
+    Texture2D rockTex("models/rockTexture.png", GL_CLAMP_TO_EDGE);
+    GL_CHECK_ERROR;
+
+    Texture2D groundTex("textures/groundSeamless.jpg", GL_REPEAT);
+    groundTex.enableMipmap();
+
+    Texture2D waterTex("textures/waterSeamless.jpg", GL_REPEAT);
+    waterTex.enableMipmap();
+    GL_CHECK_ERROR;
+
+    Texture2D heartTex("textures/heart.png", GL_REPEAT);
+    GL_CHECK_ERROR;
 
     Model suzanne("models/suzanne.obj");
 
@@ -99,18 +90,19 @@ int main(int argc, char* argv[])
 
     BasicShapeElements sol;
     sol.setData(solVertex, sizeof(solVertex), solIndices, sizeof(solIndices));
-    sol.enableAttribute(0, 3, 6, 0);
-    sol.enableAttribute(1, 3, 6, 3);
+    sol.enableAttribute(0, 3, 5, 0);
+    sol.enableAttribute(1, 2, 5, 3);
+    
 
     BasicShapeElements ruisseau;
     ruisseau.setData(ruisseauVertex, sizeof(ruisseauVertex), ruisseauIndices, sizeof(ruisseauIndices));
-    ruisseau.enableAttribute(0, 3, 6, 0);
-    ruisseau.enableAttribute(1, 3, 6, 3);
+    ruisseau.enableAttribute(0, 3, 5, 0);
+    ruisseau.enableAttribute(1, 2, 5, 3);
 
     BasicShapeElements hud;
     hud.setData(hudVertex, sizeof(hudVertex), hudIndices, sizeof(hudIndices));
-    hud.enableAttribute(0, 3, 6, 0);
-    hud.enableAttribute(1, 3, 6, 3);
+    hud.enableAttribute(0, 3, 5, 0);
+    hud.enableAttribute(1, 2, 5, 3);
 
 
     const int N_ROWS = 7;
@@ -155,7 +147,7 @@ int main(int argc, char* argv[])
 
         scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
 
-        shroomTransform[i] = shroomTransform[i] * scale; // scale(arbre) * translate * (scale(arbre) ^(-1)) * scale(0.05)
+        shroomTransform[i] = shroomTransform[i] * scale;
 
 
         // Transformations de la roche
@@ -164,10 +156,7 @@ int main(int argc, char* argv[])
         scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
 
         rockTransform[i] = rotate * translate * scale;
-    }
-
-    //glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
-    
+    }    
 
     glm::vec3 playerPosition = glm::vec3(0);
     glm::vec2 playerOrientation = glm::vec2(0);
@@ -188,6 +177,9 @@ int main(int argc, char* argv[])
     int xMouse = 0, yMouse = 0;
     
     glm::mat4 model, view, proj, matrix;
+
+
+    glUniform1i(locTex, 0);
     
     int selectShape = 0;
     bool isRunning = true;
@@ -215,42 +207,48 @@ int main(int argc, char* argv[])
         matrix = proj * view * model;
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
-        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
+        glUniform2fv(locTex, 1, glm::value_ptr(glm::vec3(1.0f)));
 
 
         // Draw Suzanne
         if (!isFirstPersonCam) {
             model = modelMatrixSuzanne(playerPosition);
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
-            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f)));
+            suzanneTex.use();
             suzanne.draw();
+            suzanneTex.unuse();
         }
 
         // Draw sol
         model = glm::mat4(1.0f);
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
-        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, 0.7f)));
+        waterTex.use();
         ruisseau.draw(GL_TRIANGLES, 6);
+        waterTex.unuse();
 
         // Draw sol
         model = glm::mat4(1.0f);
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
-        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3( 0.0f, 1.0f, 0.0f )));
+        groundTex.use();
         sol.draw(GL_TRIANGLES, 6);
+        groundTex.unuse();
 
         // Draw model 
         for (int i = 0; i < N_GROUPS; ++i) {
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
-            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.0f, 0.7f, 0.0f)));
+            treeTex.use();
             tree.draw();
+            treeTex.unuse();
 
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * rockTransform[i]));
-            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+            rockTex.use();
             rock.draw();
+            rockTex.unuse();
 
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * shroomTransform[i]));
-            glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f, 0.0f, 0.0f)));
-            shroom.draw();        
+            shroomTex.use();
+            shroom.draw();
+            shroomTex.unuse();
         }
 
         // HUD (carré/coeur dans l'écran)
@@ -260,9 +258,10 @@ int main(int argc, char* argv[])
         proj = glm::ortho((float)w.getWidth() / -2, (float)w.getWidth() / 2, (float)w.getHeight() / -2, (float)w.getHeight() / 2, -1.0f, 200.0f);
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * model));
-        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.0f)));
 
+        heartTex.use();
         hud.draw(GL_TRIANGLES, 6);
+        heartTex.unuse();
 
 
         glEnable(GL_DEPTH_TEST);

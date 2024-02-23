@@ -13,7 +13,8 @@ Model::Model(const char* path) : m_shape()
 	loadObj(path, vertexData, indices);
 
 	m_shape.setData(vertexData.data(), vertexData.size() * sizeof(GLfloat), indices.data(), indices.size() * sizeof(GLuint));
-	m_shape.enableAttribute(0, 3, 3, 0);
+	m_shape.enableAttribute(0, 3, 5, 0);
+	m_shape.enableAttribute(1, 2, 5, 3);
 
 	m_count = indices.size();
 }
@@ -35,9 +36,9 @@ void Model::loadObj(const char* path, std::vector<GLfloat>& vertexData, std::vec
 		vertexData.push_back(p.Y);
 		vertexData.push_back(p.Z);
 		// TODO: Décommenter lors de la partie 2
-		//objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
-		//vertexData.push_back(t.X);
-		//vertexData.push_back(t.Y);
+		objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
+		vertexData.push_back(t.X);
+		vertexData.push_back(t.Y);
 	}
 	indices = loader.LoadedIndices;
 }

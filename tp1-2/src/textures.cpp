@@ -15,6 +15,20 @@ Texture2D::Texture2D(const char* path, GLenum wrapMode)
         std::cout << "Error loading texture \"" << path << "\": " << stbi_failure_reason() << std::endl;
 
     // TODO: Chargement	de la texture.
+    glGenTextures(1, &m_id);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+
+    if (nChannels == 3)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    else if (nChannels == 4)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
     stbi_image_free(data);
 }
@@ -22,21 +36,26 @@ Texture2D::Texture2D(const char* path, GLenum wrapMode)
 Texture2D::~Texture2D()
 {
     // TODO: Supprimer la mémoire de l'objet
+    glDeleteTextures(1, &m_id);
 }
 
 void Texture2D::enableMipmap()
 {
     // TODO: Activer le mipmap. N'oublier pas de modifier les paramètres de texture.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Texture2D::use()
 {
     // TODO: Utilise la texture
+    glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
 void Texture2D::unuse()
 {
     // TODO: N'utilise aucune texture
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
