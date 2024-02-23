@@ -122,4 +122,16 @@ const GLuint ruisseauIndices[] = {
     1, 3, 2
 };
 
+const GLfloat hudVertex[] = {
+    0.0f,   0.0f,   0.0f, 0.0f, 0.0f, 0.0f,
+    100.0f, 0.0f,   0.0f, 0.0f, 0.0f, 0.0f,
+    0.0f,   100.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    100.0f, 100.0f, 0.0f, 0.0f, 0.0f, 0.0f
+};
+
+const GLuint hudIndices[] = {
+    0, 1, 2,
+    1, 3, 2
+};
+
 #endif // VERTICES_DATA_H

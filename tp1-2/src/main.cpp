@@ -105,6 +105,11 @@ int main(int argc, char* argv[])
     ruisseau.enableAttribute(0, 3, 6, 0);
     ruisseau.enableAttribute(1, 3, 6, 3);
 
+    BasicShapeElements hud;
+    hud.setData(hudVertex, sizeof(hudVertex), hudIndices, sizeof(hudIndices));
+    hud.enableAttribute(0, 3, 6, 0);
+    hud.enableAttribute(1, 3, 6, 3);
+
 
     const int N_ROWS = 7;
     const int N_GROUPS = N_ROWS * N_ROWS;
@@ -169,6 +174,8 @@ int main(int argc, char* argv[])
 
     bool isFirstPersonCam = false;
 
+    std::cout << "width: " << w.getWidth() << ", heigth: " << w.getHeight() << std::endl;
+
 
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -227,11 +234,6 @@ int main(int argc, char* argv[])
 
         // Draw model 
         for (int i = 0; i < N_GROUPS; ++i) {
-            groupsTransform[i];
-            treeTransform[i];
-            shroomTransform[i];
-            rockTransform[i];
-
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
             glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(0.0f, 0.7f, 0.0f)));
             tree.draw();
@@ -244,6 +246,21 @@ int main(int argc, char* argv[])
             glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f, 0.0f, 0.0f)));
             shroom.draw();        
         }
+
+        // HUD (carré/coeur dans l'écran)
+        glDisable(GL_DEPTH_TEST);
+        model = glm::translate(glm::mat4(1.0f), { w.getWidth() / -2.0f, w.getHeight() / -2.0f, 0 });
+        model = glm::translate(model, { 100.0f / 4, 100.0f / 4, 0 });
+        proj = glm::ortho((float)w.getWidth() / -2, (float)w.getWidth() / 2, (float)w.getHeight() / -2, (float)w.getHeight() / 2, -1.0f, 200.0f);
+
+        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * model));
+        glUniform3fv(locColor, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.0f)));
+
+        hud.draw(GL_TRIANGLES, 6);
+
+
+        glEnable(GL_DEPTH_TEST);
+
 
         
         w.swap();
@@ -313,10 +330,6 @@ std::string readFile(const char* path)
 void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation) {
     playerOrientation.x += yMouse * 0.01f;
     playerOrientation.y += xMouse * 0.01f;
-}
-
-void drawSuzanne(Model suzanne, glm::mat4 pv) {
-    
 }
 
 glm::mat4 modelMatrixSuzanne() {
