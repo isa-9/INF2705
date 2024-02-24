@@ -29,9 +29,9 @@ void checkGLError(const char* file, int line);
 std::string readFile(const char* path);
 
 void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOrientation);
-glm::mat4 modelMatrixSuzanne(const glm::vec3& pos);
+glm::mat4 modelMatrixSuzanne(const glm::vec3& pos, const glm::vec2& orientation);
 
-void handleKeyboardPress(Window& w, glm::vec3& playerPosition);
+void handleKeyboardPress(Window& w, glm::vec3& playerPosition, const glm::vec2& orientation);
 
 int main(int argc, char* argv[])
 {
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
         w.getMouseMotion(xMouse, yMouse);
         handleMouseMotion(xMouse, yMouse, playerOrientation);
 
-        handleKeyboardPress(w, playerPosition);
+        handleKeyboardPress(w, playerPosition, playerOrientation);
 
         if (w.getMouseScrollDirection() != 0)
             isFirstPersonCam = w.getMouseScrollDirection() > 0;
@@ -204,15 +204,15 @@ int main(int argc, char* argv[])
         view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
         proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
 
-        matrix = proj * view * model;
+        /*matrix = proj * view * model;
 
         glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
-        glUniform2fv(locTex, 1, glm::value_ptr(glm::vec3(1.0f)));
+        glUniform2fv(locTex, 1, glm::value_ptr(glm::vec3(1.0f)));*/
 
 
         // Draw Suzanne
         if (!isFirstPersonCam) {
-            model = modelMatrixSuzanne(playerPosition);
+            model = modelMatrixSuzanne(playerPosition, playerOrientation);
             glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
             suzanneTex.use();
             suzanne.draw();
@@ -337,20 +337,24 @@ void handleMouseMotion(const int& xMouse, const int& yMouse, glm::vec2& playerOr
     playerOrientation.y += xMouse * 0.01f;
 }
 
-void handleKeyboardPress(Window& w, glm::vec3& playerPosition) {
+void handleKeyboardPress(Window& w, glm::vec3& playerPosition, const glm::vec2& orientation) {
+    glm::vec3 moveForward(sin(glm::radians(orientation.y * -1)), 0.0f, cos(glm::radians(orientation.y * -1)));
+    glm::vec3 moveRight(sin(glm::radians((orientation.y + 90) * -1)), 0.0f, cos(glm::radians((orientation.y + 90) * -1)));
+
     if (w.getKeyHold(Window::Key::S))
-        playerPosition.z += 0.1f;
+        playerPosition += 0.1f * moveForward;
     if (w.getKeyHold(Window::Key::W))
-        playerPosition.z -= 0.1f;
+        playerPosition -= 0.1f * moveForward;
     if (w.getKeyHold(Window::Key::D))
-        playerPosition.x += 0.1f;
+        playerPosition -= 0.1f * moveRight;
     if (w.getKeyHold(Window::Key::A))
-        playerPosition.x -= 0.1f;
+        playerPosition += 0.1f * moveRight;
 }
 
-glm::mat4 modelMatrixSuzanne(const glm::vec3& pos) {
+glm::mat4 modelMatrixSuzanne(const glm::vec3& pos, const glm::vec2& orientation) {
     glm::mat4 translate = glm::translate(glm::mat4(1.0f), { pos.x, -1.0, pos.z });
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), { 0, 1, 0 });
+    rotate = glm::rotate(rotate, glm::radians(orientation.y * -1), { 0, 1, 0 });
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 
     return translate * rotate * scale;
