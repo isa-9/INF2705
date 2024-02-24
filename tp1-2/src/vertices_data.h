@@ -112,9 +112,9 @@ const GLuint  solIndices[] = {
 
 const GLfloat ruisseauVertex[] = {
         -30.0f, -1.0f,  30.0f, 0.0f, 0.0f,
-         30.0f, -1.0f,  30.0f, 10.0f, 0.0f,
-        -30.0f, -1.0f,  50.0f, 0.0f, 10.0f,
-         30.0f, -1.0f,  50.0f, 10.0f, 10.0f
+         30.0f, -1.0f,  30.0f, 5.0f, 0.0f,
+        -30.0f, -1.0f,  50.0f, 0.0f, 2.0f,
+         30.0f, -1.0f,  50.0f, 5.0f, 2.0f
 };
 
 const GLuint ruisseauIndices[] = {

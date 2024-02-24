@@ -46,22 +46,38 @@ int main(int argc, char* argv[])
         return -2;
     }
 
-    ShaderProgram modelProg;
-    GLuint locMatrMVP, locTex;
+    ShaderProgram modelProg, waterProg;
+    GLuint locMatrMVP, locTex, locTime;
 
     {
         std::string modelVSCode = readFile("shaders/model.vs.glsl");
         std::string modelFSCode = readFile("shaders/model.fs.glsl");
 
-        Shader transVertexShader(GL_VERTEX_SHADER, modelVSCode.c_str());
-        modelProg.attachShader(transVertexShader);
+        Shader modelVertexShader(GL_VERTEX_SHADER, modelVSCode.c_str());
+        modelProg.attachShader(modelVertexShader);
 
-        Shader transFragmentShader(GL_FRAGMENT_SHADER, modelFSCode.c_str());
-        modelProg.attachShader(transFragmentShader);
+        Shader modelFragmentShader(GL_FRAGMENT_SHADER, modelFSCode.c_str());
+        modelProg.attachShader(modelFragmentShader);
 
         modelProg.link();
         locMatrMVP = modelProg.getUniformLoc("mvp");
         locTex = modelProg.getUniformLoc("tex0");
+    }
+
+    {
+        std::string waterVSCode = readFile("shaders/water.vs.glsl");
+        std::string waterFSCode = readFile("shaders/water.fs.glsl");
+
+        Shader waterVertexShader(GL_VERTEX_SHADER, waterVSCode.c_str());
+        waterProg.attachShader(waterVertexShader);
+
+        Shader waterFragmentShader(GL_FRAGMENT_SHADER, waterFSCode.c_str());
+        waterProg.attachShader(waterFragmentShader);
+
+        waterProg.link();
+        locMatrMVP = waterProg.getUniformLoc("mvp");
+        locTex = waterProg.getUniformLoc("tex0");
+        locTime = waterProg.getUniformLoc("time");
     }
 
     Texture2D suzanneTex("models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
@@ -219,16 +235,17 @@ int main(int argc, char* argv[])
             suzanneTex.unuse();
         }
 
-        // Draw sol
-        model = glm::mat4(1.0f);
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+        // Draw ruisseau
+        waterProg.use();
+        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view));
+        glUniform1f(locTime, w.getTick() / 1000.0f);
         waterTex.use();
         ruisseau.draw(GL_TRIANGLES, 6);
         waterTex.unuse();
 
         // Draw sol
-        model = glm::mat4(1.0f);
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+        modelProg.use();
+        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view));
         groundTex.use();
         sol.draw(GL_TRIANGLES, 6);
         groundTex.unuse();
