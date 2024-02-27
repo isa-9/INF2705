@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
         return -2;
     }
 
-    ShaderProgram modelProg, waterProg;
-    GLuint locMatrMVP, locTex, locTime;
+    ShaderProgram modelProg;
+    GLuint locMatrMVPModel, locTexModel;
 
     {
         std::string modelVSCode = readFile("shaders/model.vs.glsl");
@@ -60,9 +60,12 @@ int main(int argc, char* argv[])
         modelProg.attachShader(modelFragmentShader);
 
         modelProg.link();
-        locMatrMVP = modelProg.getUniformLoc("mvp");
-        locTex = modelProg.getUniformLoc("tex0");
+        locMatrMVPModel = modelProg.getUniformLoc("mvp");
+        locTexModel = modelProg.getUniformLoc("tex0");
     }
+
+    ShaderProgram waterProg;
+    GLuint locMatrMVPWater, locTexWater, locTime;
 
     {
         std::string waterVSCode = readFile("shaders/water.vs.glsl");
@@ -75,25 +78,52 @@ int main(int argc, char* argv[])
         waterProg.attachShader(waterFragmentShader);
 
         waterProg.link();
-        locMatrMVP = waterProg.getUniformLoc("mvp");
-        locTex = waterProg.getUniformLoc("tex0");
+        locMatrMVPWater = waterProg.getUniformLoc("mvp");
+        locTexWater = waterProg.getUniformLoc("tex0");
         locTime = waterProg.getUniformLoc("time");
+    }
+
+    ShaderProgram skyProg;
+    GLuint locMatrMVPSky, locTexSky;
+
+    {
+        std::string skyVSCode = readFile("shaders/skybox.vs.glsl");
+        std::string skyFSCode = readFile("shaders/skybox.fs.glsl");
+
+        Shader skyVertexShader(GL_VERTEX_SHADER, skyVSCode.c_str());
+        skyProg.attachShader(skyVertexShader);
+
+        Shader skyFragmentShader(GL_FRAGMENT_SHADER, skyFSCode.c_str());
+        skyProg.attachShader(skyFragmentShader);
+
+        skyProg.link();
+        locMatrMVPSky = skyProg.getUniformLoc("mvp");
+        locTexSky = skyProg.getUniformLoc("tex");
     }
 
     Texture2D suzanneTex("models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
     Texture2D treeTex("models/treeTexture.png", GL_CLAMP_TO_EDGE);
     Texture2D shroomTex("models/mushroomTexture.png", GL_CLAMP_TO_EDGE);
     Texture2D rockTex("models/rockTexture.png", GL_CLAMP_TO_EDGE);
-    GL_CHECK_ERROR;
 
     Texture2D groundTex("textures/groundSeamless.jpg", GL_REPEAT);
     groundTex.enableMipmap();
 
     Texture2D waterTex("textures/waterSeamless.jpg", GL_REPEAT);
     waterTex.enableMipmap();
-    GL_CHECK_ERROR;
 
     Texture2D heartTex("textures/heart.png", GL_REPEAT);
+
+    const char* pathes[] = {
+    "./textures/skybox/Daylight Box_Right.bmp",
+    "./textures/skybox/Daylight Box_Left.bmp",
+    "./textures/skybox/Daylight Box_Top.bmp",
+    "./textures/skybox/Daylight Box_Bottom.bmp",
+    "./textures/skybox/Daylight Box_Front.bmp",
+    "./textures/skybox/Daylight Box_Back.bmp",
+    };
+
+    TextureCubeMap skyBoxTex(pathes);
     GL_CHECK_ERROR;
 
     Model suzanne("models/suzanne.obj");
@@ -119,6 +149,10 @@ int main(int argc, char* argv[])
     hud.setData(hudVertex, sizeof(hudVertex), hudIndices, sizeof(hudIndices));
     hud.enableAttribute(0, 3, 5, 0);
     hud.enableAttribute(1, 2, 5, 3);
+
+    BasicShapeElements skyBox;
+    skyBox.setData(skyboxVertices, sizeof(skyboxVertices), cubeIndexes, sizeof(cubeIndexes));
+    skyBox.enableAttribute(0, 3, 0, 0);
 
 
     const int N_ROWS = 7;
@@ -181,9 +215,6 @@ int main(int argc, char* argv[])
 
     bool isFirstPersonCam = false;
 
-    std::cout << "width: " << w.getWidth() << ", heigth: " << w.getHeight() << std::endl;
-
-
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
@@ -193,9 +224,6 @@ int main(int argc, char* argv[])
     int xMouse = 0, yMouse = 0;
     
     glm::mat4 model, view, proj, matrix;
-
-
-    glUniform1i(locTex, 0);
     
     int selectShape = 0;
     bool isRunning = true;
@@ -226,43 +254,50 @@ int main(int argc, char* argv[])
         glUniform2fv(locTex, 1, glm::value_ptr(glm::vec3(1.0f)));*/
 
 
+        glUniform1i(locTexModel, 0);
+
         // Draw Suzanne
         if (!isFirstPersonCam) {
             model = modelMatrixSuzanne(playerPosition, playerOrientation);
-            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view * model));
+            glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj * view * model));
             suzanneTex.use();
             suzanne.draw();
             suzanneTex.unuse();
         }
 
+
+        glUniform1i(locTexWater, 0);
+
         // Draw ruisseau
         waterProg.use();
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view));
+        glUniformMatrix4fv(locMatrMVPWater, 1, GL_FALSE, glm::value_ptr(proj * view));
         glUniform1f(locTime, w.getTick() / 1000.0f);
         waterTex.use();
         ruisseau.draw(GL_TRIANGLES, 6);
         waterTex.unuse();
 
+        glUniform1i(locTexModel, 0);
+
         // Draw sol
         modelProg.use();
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * view));
+        glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj * view));
         groundTex.use();
         sol.draw(GL_TRIANGLES, 6);
         groundTex.unuse();
 
         // Draw model 
         for (int i = 0; i < N_GROUPS; ++i) {
-            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
+            glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
             treeTex.use();
             tree.draw();
             treeTex.unuse();
 
-            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * rockTransform[i]));
+            glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * rockTransform[i]));
             rockTex.use();
             rock.draw();
             rockTex.unuse();
 
-            glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * shroomTransform[i]));
+            glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * shroomTransform[i]));
             shroomTex.use();
             shroom.draw();
             shroomTex.unuse();
@@ -274,7 +309,7 @@ int main(int argc, char* argv[])
         model = glm::translate(model, { 100.0f / 4, 100.0f / 4, 0 });
         proj = glm::ortho((float)w.getWidth() / -2, (float)w.getWidth() / 2, (float)w.getHeight() / -2, (float)w.getHeight() / 2, -1.0f, 200.0f);
 
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(proj * model));
+        glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj * model));
 
         heartTex.use();
         hud.draw(GL_TRIANGLES, 6);
@@ -282,6 +317,19 @@ int main(int argc, char* argv[])
 
 
         glEnable(GL_DEPTH_TEST);
+
+
+        glUniform1i(locTexSky, 0);
+        skyProg.use();
+
+        glDepthFunc(GL_EQUAL);
+
+        view = glm::mat4(glm::mat3(view));
+        glUniformMatrix4fv(locMatrMVPSky, 1, GL_FALSE, glm::value_ptr(proj * view));
+        skyBoxTex.use();
+        skyBox.draw(GL_TRIANGLES, 36);
+
+        glDepthFunc(GL_LESS);
 
 
         

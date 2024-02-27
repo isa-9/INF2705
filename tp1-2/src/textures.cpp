@@ -76,22 +76,45 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
 
     
 	// TODO: Chargement des textures du cubemap.
-	
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+
+    for (int i = 0; i < N_TEXTURES; i++) {
+
+        if (nChannels[i] == 3) {
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGB, widths[i], heights[i], 0, GL_RGB, GL_UNSIGNED_BYTE, datas[i]
+            );
+        }
+        else if (nChannels[i] == 4) {
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGBA, widths[i], heights[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, datas[i]
+            );
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
 
     for (unsigned int i = 0; i < 6; i++)
     {
         stbi_image_free(datas[i]);
     }
-    
-
 }
 
 TextureCubeMap::~TextureCubeMap()
 {
     // TODO: Supprimer la mémoire de l'objet
+    glDeleteTextures(1, &m_id);
 }
 
 void TextureCubeMap::use()
 {
     // TODO: Utilise la texture du cubemap
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 }
