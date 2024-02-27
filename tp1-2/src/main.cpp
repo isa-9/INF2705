@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 
         skyProg.link();
         locMatrMVPSky = skyProg.getUniformLoc("mvp");
-        locTexSky = skyProg.getUniformLoc("tex");
+        locTexSky = skyProg.getUniformLoc("skybox");
     }
 
     Texture2D suzanneTex("models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
@@ -115,12 +115,12 @@ int main(int argc, char* argv[])
     Texture2D heartTex("textures/heart.png", GL_REPEAT);
 
     const char* pathes[] = {
-    "./textures/skybox/Daylight Box_Right.bmp",
-    "./textures/skybox/Daylight Box_Left.bmp",
-    "./textures/skybox/Daylight Box_Top.bmp",
-    "./textures/skybox/Daylight Box_Bottom.bmp",
-    "./textures/skybox/Daylight Box_Front.bmp",
-    "./textures/skybox/Daylight Box_Back.bmp",
+    "textures/skybox/Daylight Box_Right.bmp",
+    "textures/skybox/Daylight Box_Left.bmp",
+    "textures/skybox/Daylight Box_Top.bmp",
+    "textures/skybox/Daylight Box_Bottom.bmp",
+    "textures/skybox/Daylight Box_Front.bmp",
+    "textures/skybox/Daylight Box_Back.bmp",
     };
 
     TextureCubeMap skyBoxTex(pathes);
@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
     hud.enableAttribute(1, 2, 5, 3);
 
     BasicShapeElements skyBox;
-    skyBox.setData(skyboxVertices, sizeof(skyboxVertices), cubeIndexes, sizeof(cubeIndexes));
-    skyBox.enableAttribute(0, 3, 0, 0);
+    skyBox.setData(skyboxVertices, sizeof(skyboxVertices), skyboxIndices, sizeof(skyboxIndices));
+    skyBox.enableAttribute(0, 3, 3, 0);
 
 
     const int N_ROWS = 7;
@@ -218,12 +218,10 @@ int main(int argc, char* argv[])
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
 
     int xMouse = 0, yMouse = 0;
     
-    glm::mat4 model, view, proj, matrix;
+    glm::mat4 model, view, proj;
     
     int selectShape = 0;
     bool isRunning = true;
@@ -233,6 +231,7 @@ int main(int argc, char* argv[])
             glViewport(0, 0, w.getWidth(), w.getHeight());
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
 
         modelProg.use();
 
@@ -248,14 +247,6 @@ int main(int argc, char* argv[])
         view = isFirstPersonCam ? camera.getFirstPersonViewMatrix() : camera.getThirdPersonViewMatrix();
         proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
 
-        /*matrix = proj * view * model;
-
-        glUniformMatrix4fv(locMatrMVP, 1, GL_FALSE, glm::value_ptr(matrix));
-        glUniform2fv(locTex, 1, glm::value_ptr(glm::vec3(1.0f)));*/
-
-
-        glUniform1i(locTexModel, 0);
-
         // Draw Suzanne
         if (!isFirstPersonCam) {
             model = modelMatrixSuzanne(playerPosition, playerOrientation);
@@ -265,9 +256,6 @@ int main(int argc, char* argv[])
             suzanneTex.unuse();
         }
 
-
-        glUniform1i(locTexWater, 0);
-
         // Draw ruisseau
         waterProg.use();
         glUniformMatrix4fv(locMatrMVPWater, 1, GL_FALSE, glm::value_ptr(proj * view));
@@ -276,7 +264,6 @@ int main(int argc, char* argv[])
         ruisseau.draw(GL_TRIANGLES, 6);
         waterTex.unuse();
 
-        glUniform1i(locTexModel, 0);
 
         // Draw sol
         modelProg.use();
@@ -286,6 +273,8 @@ int main(int argc, char* argv[])
         groundTex.unuse();
 
         // Draw model 
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         for (int i = 0; i < N_GROUPS; ++i) {
             glUniformMatrix4fv(locMatrMVPModel, 1, GL_FALSE, glm::value_ptr(proj* view* groupsTransform[i] * treeTransform[i]));
             treeTex.use();
@@ -302,9 +291,10 @@ int main(int argc, char* argv[])
             shroom.draw();
             shroomTex.unuse();
         }
+        glDisable(GL_CULL_FACE);
 
         // HUD (carré/coeur dans l'écran)
-        glDisable(GL_DEPTH_TEST);
+        glDepthFunc(GL_ALWAYS);
         model = glm::translate(glm::mat4(1.0f), { w.getWidth() / -2.0f, w.getHeight() / -2.0f, 0 });
         model = glm::translate(model, { 100.0f / 4, 100.0f / 4, 0 });
         proj = glm::ortho((float)w.getWidth() / -2, (float)w.getWidth() / 2, (float)w.getHeight() / -2, (float)w.getHeight() / 2, -1.0f, 200.0f);
@@ -316,20 +306,22 @@ int main(int argc, char* argv[])
         heartTex.unuse();
 
 
-        glEnable(GL_DEPTH_TEST);
+        // SkyBox
+        glDepthFunc(GL_EQUAL);
+        glDepthMask(GL_FALSE);
 
-
-        glUniform1i(locTexSky, 0);
         skyProg.use();
 
-        glDepthFunc(GL_EQUAL);
-
         view = glm::mat4(glm::mat3(view));
+
+        proj = glm::perspective(glm::radians(70.0f), (float)w.getWidth() / (float)w.getHeight(), 0.1f, 200.0f);
+        
         glUniformMatrix4fv(locMatrMVPSky, 1, GL_FALSE, glm::value_ptr(proj * view));
         skyBoxTex.use();
         skyBox.draw(GL_TRIANGLES, 36);
 
         glDepthFunc(GL_LESS);
+        glDepthMask(GL_TRUE);
 
 
         

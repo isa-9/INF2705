@@ -2,13 +2,10 @@
 
 in vec3 texCoords;
 
-uniform samplerCube tex;
+uniform samplerCube skybox;
 
 out vec4 outColor;
 
 void main() {
-	outColor = texture(tex, vec2(texCoords.x, texCoords.y));
-
-	if (outColor.a < 0.3)
-		discard;
+	outColor = texture(skybox, texCoords);
 }

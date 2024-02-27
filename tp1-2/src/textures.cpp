@@ -81,18 +81,18 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
 
     for (int i = 0; i < N_TEXTURES; i++) {
 
-        if (nChannels[i] == 3) {
+        //if (nChannels[i] == 3) {
             glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                 0, GL_RGB, widths[i], heights[i], 0, GL_RGB, GL_UNSIGNED_BYTE, datas[i]
             );
-        }
+        /*}
         else if (nChannels[i] == 4) {
             glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                 0, GL_RGBA, widths[i], heights[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, datas[i]
             );
-        }
+        }*/
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
