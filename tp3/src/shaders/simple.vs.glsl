@@ -7,5 +7,6 @@ uniform mat4 mvp;
 
 void main()
 {
-    // TODO
+    vec3 posWithNormal = position + 0.1 * normal;
+    gl_Position = mvp * vec4(posWithNormal, 1.0f);
 }
