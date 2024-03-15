@@ -16,5 +16,11 @@ out vec4 FragColor;
 
 void main()
 {
-    // TODO
+    vec4 texDiffuse = texture(diffuseSampler, attribIn.texCoords);
+    vec4 texSpecular = texture(specularSampler, attribIn.texCoords);
+
+   FragColor = clamp(texDiffuse * vec4(attribIn.diffuse, 1.0) +
+                texSpecular * vec4(attribIn.specular, 1.0) +
+                vec4(attribIn.ambient, 1.0) +
+                vec4(attribIn.emission, 1.0), 0.0, 1.0);
 }

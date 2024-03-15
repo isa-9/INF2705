@@ -71,8 +71,6 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
 void main()
 {
     // TODO
-    FragColor = vec4(lightingBlock.mat.emission, 1.0f);
-
     vec3 L = normalize(attribIn.lightDir[0]);
 
     vec3 N = normalize( gl_FrontFacing ? attribIn.normal : -attribIn.normal );
