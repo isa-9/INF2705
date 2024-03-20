@@ -44,6 +44,23 @@ uniform sampler2D specularSampler;
 
 out vec4 FragColor;
 
+float calculerSpot( in vec3 D, in vec3 L, in vec3 N )
+{
+    float spotFacteur = 0.0;
+    if ( dot( D, N ) >= 0 )
+    {
+        float spotDot = dot( L, D );
+        float cosDelta = cos(radians(lightingBlock.spotOpeningAngle));
+        if ( spotDot > cosDelta ) {
+            spotFacteur = lightingBlock.useDirect3D ? 
+                smoothstep( pow( cosDelta, 1.01 + lightingBlock.spotExponent / 2), cosDelta, spotDot )
+            : pow( spotDot, lightingBlock.spotExponent );
+        }
+    }
+    return( spotFacteur );
+}
+
+
 vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
 {
     vec3 coul = vec3(0);
@@ -71,21 +88,26 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
 void main()
 {
     // TODO
-    vec3 L = normalize(attribIn.lightDir[0]);
 
     vec3 N = normalize( gl_FrontFacing ? attribIn.normal : -attribIn.normal );
 
     vec3 O = normalize(attribIn.obsPos);
 
-    vec4 col = vec4(lightingBlock.mat.emission + lightingBlock.mat.ambient * lightingBlock.lightModelAmbient, 1.0f);
+    vec3 D[3];
+    D[0] = normalize( attribIn.spotDir[0] );
+    D[1] = normalize( attribIn.spotDir[1] );
+    D[2] = normalize( attribIn.spotDir[2] );
 
-    col += calculerReflexion( L, N, O, 0 );
+    vec4 col = vec4(lightingBlock.mat.emission + lightingBlock.mat.ambient * lightingBlock.lightModelAmbient, 1.0f);
+   
+    vec3 L = normalize(attribIn.lightDir[0]);
+    col += calculerReflexion( L, N, O, 0 ) * (lightingBlock.useSpotlight ? calculerSpot( D[0], L, N ) : 1 );
     
     L = normalize(attribIn.lightDir[1]);
-    col += calculerReflexion( L, N, O, 1 );
+    col += calculerReflexion( L, N, O, 1 ) * (lightingBlock.useSpotlight ? calculerSpot( D[1], L, N ) : 1 );
     
     L = normalize(attribIn.lightDir[2]);
-    col += calculerReflexion( L, N, O, 2 );
+    col += calculerReflexion( L, N, O, 2 ) * (lightingBlock.useSpotlight ? calculerSpot( D[2], L, N ) : 1 );
 
     FragColor = clamp( col, 0.0, 1.0 );
 }
