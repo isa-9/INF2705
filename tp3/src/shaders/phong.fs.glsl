@@ -63,6 +63,9 @@ float calculerSpot( in vec3 D, in vec3 L, in vec3 N )
 
 vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
 {
+    vec4 texDiffuse = texture(diffuseSampler, attribIn.texCoords);
+    vec4 texSpecular = texture(specularSampler, attribIn.texCoords);
+
     vec3 coul = vec3(0);
     coul += lightingBlock.mat.ambient * lightingBlock.lights[i].ambient;
 
@@ -71,13 +74,17 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
     if ( NdotL > 0.0 )
     {
         // calculer la composante diffuse
-        coul += lightingBlock.mat.diffuse * lightingBlock.lights[i].diffuse * NdotL;
+        vec3 diffuse = lightingBlock.mat.diffuse * lightingBlock.lights[i].diffuse * NdotL;
+        diffuse = vec3(texDiffuse * vec4(diffuse, 1.0));
+        coul += diffuse;
 
         // calculer la composante spéculaire (Blinn ou Phong : spec = BdotN ou RdotO )
         float spec = ( lightingBlock.useBlinn ?
-                       dot( normalize( L + O ), N ) : // dot( B, N )
-                       dot( reflect( -L, N ), O ) ); // dot( R, O )
-        if ( spec > 0 ) coul +=  lightingBlock.mat.specular * lightingBlock.lights[i].specular * pow( spec, lightingBlock.mat.shininess );
+                       dot( normalize( L + O ), N ) :
+                       dot( reflect( -L, N ), O ) );
+        vec3 coulSpec = lightingBlock.mat.specular * lightingBlock.lights[i].specular * pow( spec, lightingBlock.mat.shininess );
+        coulSpec = vec3(texSpecular * vec4(coulSpec, 1.0));
+        if ( spec > 0 ) coul += coulSpec;
     }
 
     return( vec4(coul, 0.0f) );

@@ -132,10 +132,10 @@ void main()
     vec3 spec = (spectIntensity[0] > 0 ? lightingBlock.lights[0].specular * shine[0] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[0], L[0], N ) : 1 );
 
-    spec += spectIntensity[1] > 0 ? lightingBlock.lights[1].specular * shine[1] : vec3(0.0f)
+    spec += (spectIntensity[1] > 0 ? lightingBlock.lights[1].specular * shine[1] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[1], L[1], N ) : 1 );
 
-    spec += spectIntensity[2] > 0 ? lightingBlock.lights[2].specular * shine[2] : vec3(0.0f)
+    spec += (spectIntensity[2] > 0 ? lightingBlock.lights[2].specular * shine[2] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[2], L[2], N ) : 1 );
 
     spec *= lightingBlock.mat.specular;
