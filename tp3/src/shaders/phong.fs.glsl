@@ -44,6 +44,7 @@ uniform sampler2D specularSampler;
 
 out vec4 FragColor;
 
+
 float calculerSpot( in vec3 D, in vec3 L, in vec3 N )
 {
     float spotFacteur = 0.0;
@@ -61,13 +62,9 @@ float calculerSpot( in vec3 D, in vec3 L, in vec3 N )
 }
 
 
-vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
-{
-    vec4 texDiffuse = texture(diffuseSampler, attribIn.texCoords);
-    vec4 texSpecular = texture(specularSampler, attribIn.texCoords);
-
+vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i, in vec4 texDiffuse, in vec4 texSpecular)
+{    
     vec3 coul = vec3(0);
-    coul += lightingBlock.mat.ambient * lightingBlock.lights[i].ambient;
 
     // calculer l'éclairage seulement si le produit scalaire est positif
     float NdotL = max( 0.0, dot( N, L ) );
@@ -82,6 +79,8 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
         float spec = ( lightingBlock.useBlinn ?
                        dot( normalize( L + O ), N ) :
                        dot( reflect( -L, N ), O ) );
+
+
         vec3 coulSpec = lightingBlock.mat.specular * lightingBlock.lights[i].specular * pow( spec, lightingBlock.mat.shininess );
         coulSpec = vec3(texSpecular * vec4(coulSpec, 1.0));
         if ( spec > 0 ) coul += coulSpec;
@@ -91,10 +90,20 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i )
 }
 
 
+vec4 calculerAmbient() {
+    vec3 ambient = lightingBlock.mat.ambient * lightingBlock.lights[0].ambient;
+    ambient += lightingBlock.mat.ambient * lightingBlock.lights[1].ambient;
+    ambient += lightingBlock.mat.ambient * lightingBlock.lights[2].ambient;
+    ambient += lightingBlock.mat.ambient * lightingBlock.lightModelAmbient;
+    return vec4(ambient, 1.0);
+}
+
 
 void main()
 {
     // TODO
+    vec4 texDiffuse = texture(diffuseSampler, attribIn.texCoords);
+    vec4 texSpecular = texture(specularSampler, attribIn.texCoords);
 
     vec3 N = normalize( gl_FrontFacing ? attribIn.normal : -attribIn.normal );
 
@@ -105,16 +114,18 @@ void main()
     D[1] = normalize( attribIn.spotDir[1] );
     D[2] = normalize( attribIn.spotDir[2] );
 
-    vec4 col = vec4(lightingBlock.mat.emission + lightingBlock.mat.ambient * lightingBlock.lightModelAmbient, 1.0f);
+    vec4 col = vec4(lightingBlock.mat.emission, 1.0f);
+    col += texDiffuse * calculerAmbient();
    
     vec3 L = normalize(attribIn.lightDir[0]);
-    col += calculerReflexion( L, N, O, 0 ) * (lightingBlock.useSpotlight ? calculerSpot( D[0], L, N ) : 1 );
+    col += calculerReflexion( L, N, O, 0, texDiffuse, texSpecular ) * (lightingBlock.useSpotlight ? calculerSpot( D[0], L, N ) : 1 );
     
     L = normalize(attribIn.lightDir[1]);
-    col += calculerReflexion( L, N, O, 1 ) * (lightingBlock.useSpotlight ? calculerSpot( D[1], L, N ) : 1 );
+    col += calculerReflexion( L, N, O, 1, texDiffuse, texSpecular ) * (lightingBlock.useSpotlight ? calculerSpot( D[1], L, N ) : 1 );
     
     L = normalize(attribIn.lightDir[2]);
-    col += calculerReflexion( L, N, O, 2 ) * (lightingBlock.useSpotlight ? calculerSpot( D[2], L, N ) : 1 );
+    col += calculerReflexion( L, N, O, 2, texDiffuse, texSpecular ) * (lightingBlock.useSpotlight ? calculerSpot( D[2], L, N ) : 1 );
+
 
     FragColor = clamp( col, 0.0, 1.0 );
 }

@@ -106,15 +106,15 @@ void main()
     vec3 N = normalize(normal);
 
 	vec3 ambientNoMat = lightingBlock.lightModelAmbient;
-    ambientNoMat += lightingBlock.lights[0].ambient * (lightingBlock.useSpotlight ? calculerSpot( D[0], L[0], N ) : 1 );
-    ambientNoMat += lightingBlock.lights[1].ambient * (lightingBlock.useSpotlight ? calculerSpot( D[1], L[1], N ) : 1 );
-    ambientNoMat += lightingBlock.lights[2].ambient * (lightingBlock.useSpotlight ? calculerSpot( D[2], L[2], N ) : 1 );
+    ambientNoMat += lightingBlock.lights[0].ambient;
+    ambientNoMat += lightingBlock.lights[1].ambient;
+    ambientNoMat += lightingBlock.lights[2].ambient;
 
     attribOut.ambient = lightingBlock.mat.ambient * ambientNoMat;
 
-    vec3 diffuse = lightingBlock.lights[0].diffuse * dot(L[0],N) * (lightingBlock.useSpotlight ? calculerSpot( D[0], L[0], N ) : 1 );
-    diffuse += lightingBlock.lights[1].diffuse * dot(L[1], N) * (lightingBlock.useSpotlight ? calculerSpot( D[1], L[1], N ) : 1 );
-    diffuse += lightingBlock.lights[2].diffuse * dot(L[2], N) * (lightingBlock.useSpotlight ? calculerSpot( D[2], L[2], N ) : 1 );
+    vec3 diffuse = lightingBlock.lights[0].diffuse * max(dot(L[0],N), 0) * (lightingBlock.useSpotlight ? calculerSpot( D[0], L[0], N ) : 1 );
+    diffuse += lightingBlock.lights[1].diffuse * max(dot(L[1],N), 0) * (lightingBlock.useSpotlight ? calculerSpot( D[1], L[1], N ) : 1 );
+    diffuse += lightingBlock.lights[2].diffuse * max(dot(L[2],N), 0) * (lightingBlock.useSpotlight ? calculerSpot( D[2], L[2], N ) : 1 );
     diffuse *= lightingBlock.mat.diffuse;
 
     attribOut.diffuse = diffuse;
@@ -129,13 +129,13 @@ void main()
     shine[1] = pow(spectIntensity[1], lightingBlock.mat.shininess);
     shine[2] = pow(spectIntensity[2], lightingBlock.mat.shininess);
 
-    vec3 spec = (spectIntensity[0] > 0 ? lightingBlock.lights[0].specular * shine[0] : vec3(0.0f))
+    vec3 spec = (spectIntensity[0] > 0 && dot(L[0],N) > 0 ? lightingBlock.lights[0].specular * shine[0] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[0], L[0], N ) : 1 );
 
-    spec += (spectIntensity[1] > 0 ? lightingBlock.lights[1].specular * shine[1] : vec3(0.0f))
+    spec += (spectIntensity[1] > 0 && dot(L[1],N) > 0 ? lightingBlock.lights[1].specular * shine[1] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[1], L[1], N ) : 1 );
 
-    spec += (spectIntensity[2] > 0 ? lightingBlock.lights[2].specular * shine[2] : vec3(0.0f))
+    spec += (spectIntensity[2] > 0 && dot(L[2],N) > 0 ? lightingBlock.lights[2].specular * shine[2] : vec3(0.0f))
                      * (lightingBlock.useSpotlight ? calculerSpot( D[2], L[2], N ) : 1 );
 
     spec *= lightingBlock.mat.specular;
