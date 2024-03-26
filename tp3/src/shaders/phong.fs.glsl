@@ -82,7 +82,7 @@ vec4 calculerReflexion( in vec3 L, in vec3 N, in vec3 O, in int i, in vec4 texDi
 
 
         vec3 coulSpec = lightingBlock.mat.specular * lightingBlock.lights[i].specular * pow( spec, lightingBlock.mat.shininess );
-        coulSpec = vec3(texSpecular * vec4(coulSpec, 1.0));
+        coulSpec = vec3(texSpecular.r * vec4(coulSpec, 1.0));
         if ( spec > 0 ) coul += coulSpec;
     }
 
