@@ -124,10 +124,12 @@ void StencilTestScene::render(glm::mat4& view, glm::mat4& projPersp)
 	m_res.suzanneTexture.use();
     // TODO: Remplir le stencil en dessinant les singes
     glEnable(GL_STENCIL_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
     for (int i = 0; i < 3; ++i) {
         glUniformMatrix4fv(m_res.mvpLocationModel, 1, GL_FALSE, &mvpSinges[i][0][0]);
-        glStencilFunc(GL_ALWAYS, i + 1, 3);
+        glStencilFunc(GL_ALWAYS, 0xFF, 1 << i);
         m_res.suzanne.draw();
     }
     glDisable(GL_STENCIL_TEST);
@@ -158,25 +160,29 @@ void StencilTestScene::render(glm::mat4& view, glm::mat4& projPersp)
 
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilMask(0x00);
+
+    glEnable(GL_DEPTH_TEST);
+    glUniform3fv(m_res.colorLocationSimple, 1, &glm::vec3(0.843f, 0.259f, 0.204f)[0]);
+
+    for (int i = 0; i < N_ENEMY_MONKEE; ++i) {
+        glUniformMatrix4fv(m_res.mvpLocationModel, 1, GL_FALSE, &mvpSinges[i + 1][0][0]);
+        glStencilFunc(GL_NOTEQUAL, 0xFF, 1 << (i + 1));
+        m_res.suzanne.draw();
+    }
+
     glDisable(GL_DEPTH_TEST);
 
     glUniform3fv(m_res.colorLocationSimple, 1, &glm::vec3( 0.282f, 0.769f, 0.953f )[0]);
     for (int i = 0; i < N_ALLY_MONKEE; ++i) {
         glUniformMatrix4fv(m_res.mvpLocationModel, 1, GL_FALSE, &mvpSinges[i][0][0]);
-        glStencilFunc(GL_NOTEQUAL, i + 1, 3);
+        glStencilFunc(GL_NOTEQUAL, 0xFF, 1 << i);
         m_res.suzanne.draw();
     }
 
-
-    glEnable(GL_DEPTH_TEST);
-    glUniform3fv(m_res.colorLocationSimple, 1, &glm::vec3( 0.843f, 0.259f, 0.204f )[0]);
-
-    for (int i = 0; i < N_ENEMY_MONKEE; ++i) {
-        glUniformMatrix4fv(m_res.mvpLocationModel, 1, GL_FALSE, &mvpSinges[i + 1][0][0]);
-        glStencilFunc(GL_NOTEQUAL, i + 2, 3);
-        m_res.suzanne.draw();
-    }
     glDisable(GL_STENCIL_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glStencilMask(0xFF);
 }
 
 

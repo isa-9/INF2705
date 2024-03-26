@@ -87,8 +87,6 @@ void main()
     lightDir[1] = (view * vec4(lightingBlock.lights[1].position, 1.0f)).xyz - pos;
     lightDir[2] = (view * vec4(lightingBlock.lights[2].position, 1.0f)).xyz - pos;
 
-    vec3 obs = -pos;
-
     vec3 faceColor = lightingBlock.mat.emission;
 
     vec3 O = normalize(-pos);
