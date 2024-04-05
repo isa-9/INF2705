@@ -22,4 +22,14 @@ out ATTRIB_GS_OUT
 void main()
 {
     // TODO
+    vec4 barycentre = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) / 3.0;
+
+    for (int i = 0; i < gl_in.length(); i++) {
+		gl_Position = gl_in[i].gl_Position;
+		attribOut.texCoords = attribIn[i].texCoords;
+		attribOut.patchDistance = attribIn[i].patchDistance;
+		attribOut.height = attribIn[i].height;
+        attribOut.barycentricCoords = vec3(barycentre);
+		EmitVertex();
+	}
 }
