@@ -142,6 +142,15 @@ Resources::Resources()
         transformFeedback.attachShader(vertex);
 
 		// TODO
+        const char* variableNames[] = {
+            "position",
+            "velocity",
+            "color",
+            "size",
+            "timeToLive",
+        };
+
+        transformFeedback.setTransformFeedbackVaryings(variableNames, (GLsizei)std::size(variableNames), GL_INTERLEAVED_ATTRIBS);
 
         transformFeedback.link();
 

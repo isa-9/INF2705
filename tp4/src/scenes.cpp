@@ -68,7 +68,7 @@ void TesselationScene::render(glm::mat4& view, glm::mat4& projPersp)
     glUniform1i(m_res.viewWireframeLocationTessellation, m_viewWireframe);
 
 	// TODO: To remove, only for debug
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//GL_FILL
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//GL_FILL
 	
 	// TODO
     m_res.tesselationPlane.draw(GL_PATCHES, m_res.tesselationPlaneCount);
@@ -101,11 +101,34 @@ ParticleScene::ParticleScene(Resources& resources, Window& w)
     glEnable(GL_PROGRAM_POINT_SIZE);
     
     // TODO
+    glGenVertexArrays(1, &m_vao);
+
+    glGenBuffers(1, &m_vbo[0]);
+    glGenBuffers(1, &m_vbo[1]);
+
+    glGenTransformFeedbacks(1, &m_tfo);
+
+    auto numBytes = (GLsizeiptr)m_nMaxParticles * sizeof(Particle);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, numBytes, particles, GL_DYNAMIC_COPY);
+    // Configurer le VBO de sortie avec le même nombre d'octets. On n'a pas besoin de passer des données vu qu'il va être rempli avec les résultats de calculs.
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
+    glBufferData(GL_ARRAY_BUFFER, numBytes, nullptr, GL_DYNAMIC_COPY);
+
+    glBindVertexArray(m_vao);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_tfo);
 }
 
 ParticleScene::~ParticleScene()
 {
     // TODO
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+    glDeleteBuffers(1, &m_vbo[0]);
+    glDeleteBuffers(1, &m_vbo[1]);
+    glDeleteTransformFeedbacks(1, &m_tfo);
+    glDeleteVertexArrays(1, &m_vao);
 }
 
 void ParticleScene::render(glm::mat4& view, glm::mat4& projPersp)
