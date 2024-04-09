@@ -49,6 +49,4 @@ void main()
 
     gl_TessLevelInner[0] = facteurInt;
     gl_TessLevelInner[1] = facteurInt;
-    // gl_TessLevelInner[2] = facteurInt;
-    // gl_TessLevelInner[3] = facteurInt;
 }

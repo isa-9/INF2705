@@ -40,11 +40,14 @@ void main()
     vec4 p1 = gl_in[1].gl_Position;
     vec4 p2 = gl_in[2].gl_Position;
     vec4 p3 = gl_in[3].gl_Position;
-    gl_Position = mvp * interpole( p0, p1, p2, p3 );
+    vec4 position = interpole( p0, p1, p2, p3 );
 
-    vec2 texCoordsHeight = gl_Position.xy / (PLANE_SIZE * 4);
+    vec2 texCoordsHeight = (position.xy / PLANE_SIZE + 0.5) / 4.0;
     float texel = texture(heighmapSampler, texCoordsHeight).r;
-    attribOut.height = texel * 64 - 32;
+    float height = texel * 64 - 32;
+    attribOut.height = texel;
+
+    gl_Position = mvp * (position + vec4(0, height, 0, 0));
 
     attribOut.patchDistance[0] = gl_TessCoord.x;
     attribOut.patchDistance[1] = gl_TessCoord.y;
