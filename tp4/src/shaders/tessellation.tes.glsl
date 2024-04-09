@@ -42,7 +42,7 @@ void main()
     vec4 p3 = gl_in[3].gl_Position;
     vec4 position = interpole( p0, p1, p2, p3 );
 
-    vec2 texCoordsHeight = (position.xy / PLANE_SIZE + 0.5) / 4.0;
+    vec2 texCoordsHeight = (position.xz / PLANE_SIZE + 0.5) / 4.0;
     float texel = texture(heighmapSampler, texCoordsHeight).r;
     float height = texel * 64 - 32;
     attribOut.height = texel;
