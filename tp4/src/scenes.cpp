@@ -147,13 +147,23 @@ void ParticleScene::render(glm::mat4& view, glm::mat4& projPersp)
     m_res.transformFeedback.use();
     
     // TODO: buffer binding
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
 
     glUniform1f(m_res.timeLocationTransformFeedback, time);
     glUniform1f(m_res.dtLocationTransformFeedback, dt);
 
     // TODO: update particles
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_vbo[1]);
+
+    glBeginTransformFeedback(GL_POINTS);
+    glEnable(GL_RASTERIZER_DISCARD);
+    glDrawArrays(GL_POINTS, 0, (GLsizei)m_nParticles);
+    glDisable(GL_RASTERIZER_DISCARD);
+    glEndTransformFeedback();
 
     // TODO: swap buffers
+    std::swap(m_vbo[0], m_vbo[1]);
 
     // Draw skybox first without the function to change some parameter on the depth test.
     glDepthFunc(GL_LEQUAL);
@@ -171,12 +181,15 @@ void ParticleScene::render(glm::mat4& view, glm::mat4& projPersp)
     m_res.flameTexture.use();
 
     // TODO: buffer binding
+    glBindVertexArray(m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
 
     modelView = view;
     glUniformMatrix4fv(m_res.modelViewLocationParticle, 1, GL_FALSE, &modelView[0][0]);
     glUniformMatrix4fv(m_res.projectionLocationParticle, 1, GL_FALSE, &projPersp[0][0]);
 
     // TODO: Draw particles without depth write and with blending
+    glDrawArrays(GL_POINTS, 0, (GLsizei)m_nParticles);
 
     if (m_cumulativeTime > 1.0f / 60.0f)
     {
