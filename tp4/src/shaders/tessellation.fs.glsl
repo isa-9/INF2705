@@ -54,14 +54,15 @@ void main()
 
     // Calcul final du mélange en utilisant les facteurs
     vec4 color = mix(sandTex, sandGrassMix, clamp(sandFactor - grassFactor, 0.0, 1.0));
-    color = mix(color, grassTex, clamp(grassFactor - snowFactor, 0.0, 1.0));
-    color = mix(color, grassSnowMix, clamp(snowFactor, 0.0, 1.0));
+    color = mix(color, grassTex, clamp(grassFactor, 0.0, 1.0));
+    color = mix(color, grassSnowMix, clamp(grassFactor - snowFactor, 0.0, 1.0));
+    color = mix(color, snowTex, clamp(snowFactor, 0.0, 1.0));
     vec3 finalColor = vec3(color);
     if(viewWireframe) {
         float wireFrameFactor = edgeFactor(attribIn.barycentricCoords, WIREFRAME_WIDTH);
         finalColor = mix(color.rgb, WIREFRAME_COLOR, 1.0 - wireFrameFactor);
 
-        float patchEdgeFactor = edgeFactor(attribIn.barycentricCoords, PATCH_EDGE_WIDTH);
+        float patchEdgeFactor = edgeFactor(attribIn.patchDistance, PATCH_EDGE_WIDTH);
         finalColor = mix(finalColor, PATCH_EDGE_COLOR, 1.0 - patchEdgeFactor);
     }
 
