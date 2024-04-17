@@ -143,11 +143,11 @@ Resources::Resources()
 
 		// TODO
         const char* variableNames[] = {
-            "position",
-            "velocity",
-            "color",
-            "size",
-            "timeToLive",
+            "positionMod",
+            "velocityMod",
+            "colorMod",
+            "sizeMod",
+            "timeToLiveMod",
         };
 
         transformFeedback.setTransformFeedbackVaryings(variableNames, (GLsizei)std::size(variableNames), GL_INTERLEAVED_ATTRIBS);

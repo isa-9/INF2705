@@ -17,4 +17,8 @@ out ATTRIB_VS_OUT
 void main()
 {
     // TODO
+    gl_Position = modelView * vec4(position, 1.0);
+    // On peut essayer de mettre une couleur fixe pour tester alpha
+    attribOut.color = color;
+    attribOut.size = size;
 }

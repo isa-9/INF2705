@@ -58,5 +58,31 @@ const vec3 ACCELERATION = vec3(0.0f, 0.1f, 0.0f);
 
 void main()
 {
-    // TODO   
+    // TODO
+    if (timeToLive <= 0.0) {
+        positionMod = randomInCircle(INITIAL_RADIUS, INITIAL_HEIGHT);
+        velocityMod = randomInCircle(FINAL_RADIUS, FINAL_HEIGHT) * (random() * (INITIAL_SPEED_MAX - INITIAL_SPEED_MIN) + INITIAL_SPEED_MIN);
+        timeToLiveMod = random() * 0.3 + 1.7;
+        colorMod = vec4(YELLOW_COLOR, INITIAL_ALPHA);
+        
+        sizeMod = vec2(0.5, 1.0);
+    } else {
+        positionMod = position + velocity * dt;
+        velocityMod = velocity + ACCELERATION * dt;
+        timeToLiveMod = timeToLive - dt;
+        float normalizedTimeToLive = timeToLiveMod / MAX_TIME_TO_LIVE;
+        float normalizedTimeLived = 1.0f - normalizedTimeToLive;
+
+        vec3 colorTransition1 = mix(YELLOW_COLOR, ORANGE_COLOR, smoothstep(0.25, 0.3, normalizedTimeLived));
+        vec3 colorTransition2 = mix(ORANGE_COLOR, DARK_RED_COLOR, smoothstep(0.5, 1.0, normalizedTimeLived));
+        vec3 baseColor = (normalizedTimeLived < 0.3) ? colorTransition1 : colorTransition2;
+
+        // Peut-être le problème est ici avec alpha
+        float alphaRise = smoothstep(0.0, 0.2, normalizedTimeLived);
+        float alphaFall = smoothstep(0.8, 1.0, normalizedTimeLived);
+        float alpha = ALPHA * alphaRise * (1.0 - alphaFall);
+        colorMod = vec4(baseColor, alpha);
+
+        sizeMod = vec2(0.5, 1.0) * (0.5 * normalizedTimeLived + 1.0);
+    }
 }

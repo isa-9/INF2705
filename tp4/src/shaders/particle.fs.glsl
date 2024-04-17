@@ -14,4 +14,10 @@ in ATTRIB_GS_OUT
 void main()
 {
     // TODO
+    vec4 texColor = texture(textureSampler, attribIn.texCoords);
+    
+    if (attribIn.color.a < 0.05)
+        discard;
+
+    FragColor = attribIn.color * texColor;
 }
