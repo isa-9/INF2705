@@ -66,9 +66,6 @@ void TesselationScene::render(glm::mat4& view, glm::mat4& projPersp)
     glUniformMatrix4fv(m_res.modelViewLocationTessellation, 1, GL_FALSE, &modelView[0][0]);
 
     glUniform1i(m_res.viewWireframeLocationTessellation, m_viewWireframe);
-
-	// TODO: To remove, only for debug
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//GL_FILL
 	
 	// TODO
     m_res.tesselationPlane.draw(GL_PATCHES, m_res.tesselationPlaneCount);
@@ -111,7 +108,6 @@ ParticleScene::ParticleScene(Resources& resources, Window& w)
     auto numBytes = (GLsizeiptr)m_nMaxParticles * sizeof(Particle);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
     glBufferData(GL_ARRAY_BUFFER, numBytes, particles, GL_DYNAMIC_COPY);
-    // Configurer le VBO de sortie avec le même nombre d'octets. On n'a pas besoin de passer des données vu qu'il va être rempli avec les résultats de calculs.
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
     glBufferData(GL_ARRAY_BUFFER, numBytes, nullptr, GL_DYNAMIC_COPY);
 
@@ -221,12 +217,12 @@ void ParticleScene::render(glm::mat4& view, glm::mat4& projPersp)
 
     
     // TODO: Draw particles without depth write and with blending
-    glDisable(GL_DEPTH_TEST);
+    glDepthMask(0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDrawArrays(GL_POINTS, 0, (GLsizei)m_nParticles);
     glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
+    glDepthMask(0xFF);
 
     if (m_cumulativeTime > 1.0f / 60.0f)
     {

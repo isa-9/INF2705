@@ -38,21 +38,17 @@ const float PATCH_EDGE_WIDTH = 0.5f;
 void main()
 {
 	// TODO
-    // Calcul des facteurs de mélange pour les différentes textures
     float sandFactor = smoothstep(0.0, 0.3, attribIn.height);
     float grassFactor = smoothstep(0.3, 0.6, attribIn.height);
     float snowFactor = smoothstep(0.6, 1.0, attribIn.height);
 
-    // Mélange entre le sable et le gazon
     vec4 sandTex = texture(sandSampler, attribIn.texCoords);
     vec4 grassTex = texture(groundSampler, attribIn.texCoords);
     vec4 sandGrassMix = mix(sandTex, grassTex, smoothstep(0.3, 0.35, attribIn.height));
 
-    // Mélange entre le gazon et la neige
     vec4 snowTex = texture(snowSampler, attribIn.texCoords);
     vec4 grassSnowMix = mix(grassTex, snowTex, smoothstep(0.6, 0.65, attribIn.height));
 
-    // Calcul final du mélange en utilisant les facteurs
     vec4 color = mix(sandTex, sandGrassMix, clamp(sandFactor - grassFactor, 0.0, 1.0));
     color = mix(color, grassTex, clamp(grassFactor, 0.0, 1.0));
     color = mix(color, grassSnowMix, clamp(grassFactor - snowFactor, 0.0, 1.0));

@@ -27,25 +27,25 @@ void main()
 
 	gl_Position = projection * (center + addedPosition);
 	attribOut.color = attribIn[0].color;
-	attribOut.texCoords = vec2(0,1);//normalize(center + addedPosition).xy;
+	attribOut.texCoords = vec2(0,1);
 	EmitVertex();
 
 	addedPosition = vec4(apothem.x, -apothem.y, 0.0f, 0.0f);
 	gl_Position = projection * (center + addedPosition);
 	attribOut.color = attribIn[0].color;
-	attribOut.texCoords = vec2(1,1);//normalize(center + addedPosition).xy;
+	attribOut.texCoords = vec2(1,1);
 	EmitVertex();
 
 	addedPosition = vec4(-apothem.x, apothem.y, 0.0f, 0.0f);
 	gl_Position = projection * (center + addedPosition);
 	attribOut.color = attribIn[0].color;
-	attribOut.texCoords = vec2(0,0);//normalize(center + addedPosition).xy;
+	attribOut.texCoords = vec2(0,0);
 	EmitVertex();
 
 	addedPosition = vec4(apothem, 0.0f, 0.0f);
 	gl_Position = projection * (center + addedPosition);
 	attribOut.color = attribIn[0].color;
-	attribOut.texCoords = vec2(1,0);// normalize(center + addedPosition).xy;
+	attribOut.texCoords = vec2(1,0);
 	EmitVertex();
 
 	EndPrimitive();
